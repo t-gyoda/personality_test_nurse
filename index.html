@@ -53,15 +53,15 @@
 <script>
   // ====== 設定保存 ======
   const gasUrlInput = document.getElementById('gasUrl');
-  gasUrlInput.value = localStorage.getItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec') || '';
+  gasUrlInput.value = localStorage.getItem('GAS_URL') || '';
   document.getElementById('saveUrl').onclick = () => {
-    localStorage.setItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec', gasUrlInput.value.trim());
+    localStorage.setItem('GAS_URL', gasUrlInput.value.trim());
     alert('保存しました');
   };
 
-  function https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(){
-    const u = (localStorage.getItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec') || '').trim();
-    if(!u) throw new Error('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/execが未設定です（上の欄に貼って保存してください）');
+  function GAS_URL(){
+    const u = (localStorage.getItem('GAS_URL') || '').trim();
+    if(!u) throw new Error('GAS_URLが未設定です（上の欄に貼って保存してください）');
     return u;
   }
 
@@ -73,7 +73,7 @@
   }
 
   async function getQuestions(diagnosisId){
-    const url = `${https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec()}?path=questions&diagnosisId=${encodeURIComponent(diagnosisId)}`;
+    const url = `${GAS_URL()}?path=questions&diagnosisId=${encodeURIComponent(diagnosisId)}`;
     const r = await fetch(url);
     const j = await r.json();
     if(!j.ok) throw new Error(j.error || 'questions取得失敗');
@@ -94,7 +94,7 @@
       ua: navigator.userAgent
     };
 
-    const r = await fetch(https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(), {
+    const r = await fetch(GAS_URL(), {
       method:'POST',
       headers:{ 'Content-Type':'text/plain;charset=utf-8' },
       body: JSON.stringify(payload)
@@ -124,7 +124,7 @@
       const typeB = document.getElementById('typeB').value.trim();
       const payload = { path:'compatibility', typeA, typeB };
 
-      const r = await fetch(https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(), {
+      const r = await fetch(GAS_URL(), {
         method:'POST',
         headers:{ 'Content-Type':'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
