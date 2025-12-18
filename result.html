@@ -14,6 +14,19 @@
     </div>
 
     <div id="box" class="bg-white rounded-2xl shadow p-5">
+    <div id="mailBox" class="bg-white rounded-2xl shadow p-5 mt-4">
+  　　<div class="font-semibold mb-2">結果をメールで受け取る（任意）</div>
+      <input id="email" type="email" class="w-full border rounded-xl p-3" placeholder="メールアドレス" />
+      <label class="flex items-center gap-2 mt-3 text-sm">
+        <input id="consent" type="checkbox" class="h-4 w-4">
+        <span>メール送信に同意します</span>
+      </label>
+      <div class="flex items-center gap-2 mt-3">
+        <button id="sendBtn" class="px-4 py-2 rounded-xl bg-black text-white">送信</button>
+        <div id="sendMsg" class="text-sm text-gray-600"></div>
+      </div>
+    </div>
+
       <div id="msg" class="text-gray-600">読み込み中…</div>
     </div>
 
@@ -36,6 +49,45 @@
     };
   }
 
+  function GAS_URL(){
+    const u = (localStorage.getItem('GAS_URL') || '').trim();
+    if(!u) throw new Error('GAS_URLが未設定です（トップで保存してください）');
+    return u;
+  }
+  
+  async function sendEmail(out){
+    const email = document.getElementById('email').value.trim();
+    const consent = document.getElementById('consent').checked;
+    const msg = document.getElementById('sendMsg');
+    msg.textContent = '';
+  
+    if(!email) { msg.textContent = 'メールアドレスを入力してください'; return; }
+    if(!consent) { msg.textContent = '同意にチェックしてください'; return; }
+  
+    msg.textContent = '送信中…';
+  
+    const payload = {
+      path: 'sendResultEmail',
+      email,
+      diagnosisId: out.diagnosisId || '',
+      typeCode: out.typeCode,
+      axisScores: out.axisScores || {},
+      report: out.report || {}
+    };
+  
+    const r = await fetch(GAS_URL(), {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+  
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || '送信に失敗しました');
+  
+    msg.textContent = '送信しました';
+  }    
+　
+  
   // 質問ページから渡した結果を取得（同一タブでのみ生きる）
   function loadResultFromSession(){
     const raw = sessionStorage.getItem('LAST_RESULT_JSON');
