@@ -3,221 +3,162 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>診断A</title>
+  <title>診断A｜管理職マネジメントスタイル診断</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
   <div class="max-w-3xl mx-auto p-6">
     <div class="flex items-center justify-between mb-4">
-      <h1 class="text-2xl font-bold">診断A</h1>
-      <a class="text-sm underline" href="./index.html">トップへ</a>
+      <h1 class="text-2xl font-bold">管理職マネジメントスタイル診断</h1>
+      <a href="./index.html" class="text-sm underline">トップへ</a>
     </div>
 
-    <div id="needConfig" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-4">
-      <div class="font-semibold">GAS URLが未設定です</div>
-      <div class="text-sm text-gray-700 mt-1">トップページでGAS WebアプリURL（/exec）を保存してください。</div>
-      <a class="inline-block mt-3 px-4 py-2 rounded-xl bg-black text-white" href="./index.html">トップへ</a>
+    <div id="loading" class="text-gray-600">質問を読み込んでいます…</div>
+
+    <form id="form" class="hidden space-y-6"></form>
+
+    <div class="mt-6">
+      <button id="submitBtn"
+        class="hidden w-full px-4 py-3 rounded-xl bg-black text-white text-lg">
+        診断する
+      </button>
     </div>
-
-    <div id="loading" class="bg-white rounded-2xl shadow p-5">読み込み中…</div>
-
-    <form id="form" class="hidden space-y-4">
-      <div class="bg-white rounded-2xl shadow p-5">
-        <div class="font-semibold mb-2">任意：結果をメールで受け取る</div>
-        <input id="email" type="email" class="w-full border rounded-xl p-3" placeholder="メールアドレス（任意）" />
-        <label class="flex items-center gap-2 mt-3 text-sm">
-          <input id="consent" type="checkbox" class="h-4 w-4">
-          <span>メール送信と回答保存に同意します（任意）</span>
-        </label>
-        <p class="text-xs text-gray-500 mt-2">※メールを入れた場合のみ送信します。未入力なら保存のみ行います。</p>
-      </div>
-
-      <div id="questions" class="space-y-3"></div>
-
-      <div class="bg-white rounded-2xl shadow p-5 flex items-center justify-between">
-        <div id="status" class="text-sm text-gray-600">未送信</div>
-        <button type="submit" class="px-5 py-3 rounded-xl bg-black text-white">診断する</button>
-      </div>
-    </form>
-
-    <div id="result" class="hidden bg-white rounded-2xl shadow p-5 mt-4"></div>
   </div>
 
 <script>
-  const DIAGNOSIS_ID = "A";
+/********************
+ * 共通
+ ********************/
+function GAS_URL(){
+  const u = (localStorage.getItem('GAS_URL') || '').trim();
+  if(!u) throw new Error('GAS_URLが未設定です（トップページで保存してください）');
+  return u;
+}
 
-  function GAS_URL(){
-    const u = (localStorage.getItem('GAS_URL') || '').trim();
-    if(!u) throw new Error('GAS_URL not set');
-    return u;
+function sid(){
+  const k = 'diag_sid';
+  let v = localStorage.getItem(k);
+  if(!v){
+    v = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random();
+    localStorage.setItem(k, v);
   }
+  return v;
+}
 
-  function sid(){
-    const k = 'diag_sid';
-    let v = localStorage.getItem(k);
-    if(!v){
-      v = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "_" + Math.random());
-      localStorage.setItem(k, v);
-    }
-    return v;
-  }
+/********************
+ * 質問取得
+ ********************/
+async function loadQuestions(){
+  const url = `${GAS_URL()}?path=questions&diagnosisId=A`;
+  const r = await fetch(url);
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || '質問取得に失敗しました');
+  return j.questions;
+}
 
-  async function fetchQuestions(){
-    const url = `${GAS_URL()}?path=questions&diagnosisId=${encodeURIComponent(DIAGNOSIS_ID)}`;
-    const r = await fetch(url);
-    const j = await r.json();
-    if(!j.ok) throw new Error(j.error || 'questions取得失敗');
-    return j.questions;
-  }
+/********************
+ * UI生成
+ ********************/
+function renderQuestions(questions){
+  const form = document.getElementById('form');
+  form.innerHTML = '';
 
-  function renderQuestions(questions){
-    const root = document.getElementById('questions');
-    root.innerHTML = '';
+  questions.forEach(q => {
+    const box = document.createElement('div');
+    box.className = 'bg-white rounded-2xl shadow p-5';
 
-    questions.forEach((q, idx) => {
-      const qEl = document.createElement('div');
-      qEl.className = "bg-white rounded-2xl shadow p-5";
+    const title = document.createElement('div');
+    title.className = 'font-semibold mb-3';
+    title.textContent = `Q${q.order}. ${q.questionText}`;
 
-      qEl.innerHTML = `
-        <div class="text-sm text-gray-500 mb-1">Q${idx+1}</div>
-        <div class="font-semibold mb-3">${escapeHtml(q.questionText)}</div>
+    const choices = document.createElement('div');
+    choices.className = 'flex gap-3';
 
-        <div class="space-y-2">
-          ${q.choices.map((c, cidx) => `
-            <label class="flex items-start gap-3 p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
-              <input type="radio" name="${escapeHtml(q.qId)}" value="${cidx}" class="mt-1 h-4 w-4" required />
-              <span>${escapeHtml(c.text)}</span>
-            </label>
-          `).join('')}
-        </div>
+    q.choices.forEach((c, idx) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = c.text;
+      btn.className =
+        'flex-1 px-4 py-3 rounded-xl border text-center';
 
-        <div class="text-xs text-gray-500 mt-3">（内部ID: ${escapeHtml(q.qId)}）</div>
-      `;
-      root.appendChild(qEl);
+      btn.onclick = () => {
+        // 選択状態
+        [...choices.children].forEach(b => b.classList.remove('bg-black','text-white'));
+        btn.classList.add('bg-black','text-white');
+        form.dataset[q.qId] = idx; // 0 or 1
+      };
+
+      choices.appendChild(btn);
     });
-  }
 
-  function collectAnswers(questions){
-    const answers = {};
-    for(const q of questions){
-      const checked = document.querySelector(`input[name="${CSS.escape(q.qId)}"]:checked`);
-      if(!checked) throw new Error(`未回答の質問があります: ${q.qId}`);
-      answers[q.qId] = Number(checked.value); // 0 or 1
+    box.appendChild(title);
+    box.appendChild(choices);
+    form.appendChild(box);
+  });
+}
+
+/********************
+ * 回答送信
+ ********************/
+async function submitAnswers(questions){
+  const form = document.getElementById('form');
+  const answers = {};
+
+  for(const q of questions){
+    const v = form.dataset[q.qId];
+    if(v === undefined){
+      alert(`未回答の質問があります（Q${q.order}）`);
+      throw new Error('未回答');
     }
-    return answers;
+    answers[q.qId] = Number(v); // 0 or 1
   }
 
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  const payload = {
+    path: 'submit',
+    diagnosisId: 'A',
+    sessionId: sid(),
+    answers,
+    email: '',
+    ua: navigator.userAgent
+  };
+
+  const r = await fetch(GAS_URL(), {
+    method: 'POST',
+    headers: { 'Content-Type':'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error || '診断に失敗しました');
+
+  // 結果を次ページへ
+  sessionStorage.setItem('LAST_RESULT_JSON', JSON.stringify(j));
+  location.href = './result.html?diagnosisId=A';
+}
+
+/********************
+ * main
+ ********************/
+(async function main(){
+  try{
+    const questions = await loadQuestions();
+
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('form').classList.remove('hidden');
+    document.getElementById('submitBtn').classList.remove('hidden');
+
+    renderQuestions(questions);
+
+    document.getElementById('submitBtn').onclick = async () => {
+      document.getElementById('submitBtn').textContent = '診断中…';
+      document.getElementById('submitBtn').disabled = true;
+      await submitAnswers(questions);
+    };
+
+  }catch(e){
+    document.getElementById('loading').textContent = 'エラー：' + e.message;
   }
-
-  function renderResult(out){
-    const el = document.getElementById('result');
-    el.classList.remove('hidden');
-
-    const links = (out.report?.links || [])
-      .map(l => `<li><a class="underline" href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.label)}</a></li>`)
-      .join('');
-
-    el.innerHTML = `
-      <div class="text-sm text-gray-500">診断結果</div>
-      <div class="text-2xl font-bold mt-1">${escapeHtml(out.typeCode)} ${out.report?.typeName ? `（${escapeHtml(out.report.typeName)}）` : ''}</div>
-
-      <div class="mt-4">
-        <div class="font-semibold">概要</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.summary || '')}</div>
-      </div>
-
-      <div class="mt-4">
-        <div class="font-semibold">詳細</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.details || '')}</div>
-      </div>
-
-      <div class="mt-4">
-        <div class="font-semibold">ヒント</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.tips || '')}</div>
-      </div>
-
-      <div class="mt-4">
-        <div class="font-semibold">関連リンク</div>
-        ${links ? `<ul class="list-disc pl-5 mt-1">${links}</ul>` : `<div class="text-gray-500 mt-1">（未設定）</div>`}
-      </div>
-
-      <details class="mt-5">
-        <summary class="cursor-pointer text-sm text-gray-600">スコア詳細（開く）</summary>
-        <pre class="text-xs bg-gray-100 rounded-xl p-3 mt-2 overflow-auto">${escapeHtml(JSON.stringify(out.axisScores, null, 2))}</pre>
-      </details>
-    `;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  (async function main(){
-    const loading = document.getElementById('loading');
-    const form = document.getElementById('form');
-    const needConfig = document.getElementById('needConfig');
-
-    let questions = [];
-    try{
-      GAS_URL(); // throws if not set
-      questions = await fetchQuestions();
-      renderQuestions(questions);
-
-      loading.classList.add('hidden');
-      form.classList.remove('hidden');
-    }catch(e){
-      loading.classList.add('hidden');
-      needConfig.classList.remove('hidden');
-      console.warn(e);
-      return;
-    }
-
-    form.addEventListener('submit', async (ev) => {
-      ev.preventDefault();
-      document.getElementById('status').textContent = '送信中…';
-
-      try{
-        const answers = collectAnswers(questions);
-
-        const email = document.getElementById('email').value.trim();
-        const consent = document.getElementById('consent').checked;
-
-        // メールが入っているのに同意がない場合は止める（安全運用）
-        if(email && !consent){
-          alert('メール送信・保存に同意チェックを入れてください（メール不要なら空欄でOK）');
-          document.getElementById('status').textContent = '未送信';
-          return;
-        }
-
-        const payload = {
-          path: 'submit',
-          diagnosisId: DIAGNOSIS_ID,
-          sessionId: sid(),
-          answers,
-          email: email && consent ? email : '',
-          ua: navigator.userAgent
-        };
-
-        const r = await fetch(GAS_URL(), {
-          method:'POST',
-          headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
-        });
-        const out = await r.json();
-        if(!out.ok) throw new Error(out.error || 'submit失敗');
-
-        document.getElementById('status').textContent = '完了';
-        
-        // 結果を次ページへ渡す
-        sessionStorage.setItem('LAST_RESULT_JSON', JSON.stringify(out));
-        
-        // 結果ページへ
-        location.href = `./result.html?diagnosisId=${encodeURIComponent(DIAGNOSIS_ID)}&type=${encodeURIComponent(out.typeCode)}`;
-      }catch(err){
-        document.getElementById('status').textContent = '失敗';
-        alert(String(err));
-      }
-    });
-  })();
+})();
 </script>
 </body>
 </html>
