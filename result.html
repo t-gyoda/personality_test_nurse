@@ -1,1 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>診断結果</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-3xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold">診断結果</h1>
+      <a class="text-sm underline" href="./index.html">トップへ</a>
+    </div>
+
+    <div id="box" class="bg-white rounded-2xl shadow p-5">
+      <div id="msg" class="text-gray-600">読み込み中…</div>
+    </div>
+
+    <div class="mt-4 flex gap-2">
+      <a id="backLink" class="px-4 py-2 rounded-xl border" href="./index.html">戻る</a>
+      <a class="px-4 py-2 rounded-xl bg-black text-white" href="./compat.html">相性診断へ</a>
+    </div>
+  </div>
+
+<script>
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function readQuery(){
+    const p = new URLSearchParams(location.search);
+    return {
+      diagnosisId: p.get('diagnosisId') || '',
+      type: p.get('type') || ''
+    };
+  }
+
+  // 質問ページから渡した結果を取得（同一タブでのみ生きる）
+  function loadResultFromSession(){
+    const raw = sessionStorage.getItem('LAST_RESULT_JSON');
+    if(!raw) return null;
+    try { return JSON.parse(raw); } catch(e){ return null; }
+  }
+
+  (function main(){
+    const q = readQuery();
+    const out = loadResultFromSession();
+
+    // 戻るリンクは診断A/Bへ
+    const back = document.getElementById('backLink');
+    if(q.diagnosisId === 'A') back.href = './a.html';
+    else if(q.diagnosisId === 'B') back.href = './b.html';
+
+    const box = document.getElementById('box');
+    const msg = document.getElementById('msg');
+
+    if(!out){
+      msg.textContent = '結果データが見つかりませんでした。診断ページからもう一度実行してください。';
+      return;
+    }
+
+    const links = (out.report?.links || [])
+      .map(l => `<li><a class="underline" href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.label)}</a></li>`)
+      .join('');
+
+    box.innerHTML = `
+      <div class="text-sm text-gray-500">診断 ${escapeHtml(out.diagnosisId || q.diagnosisId)}</div>
+      <div class="text-2xl font-bold mt-1">${escapeHtml(out.typeCode)} ${out.report?.typeName ? `（${escapeHtml(out.report.typeName)}）` : ''}</div>
+
+      <div class="mt-4">
+        <div class="font-semibold">概要</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.summary || '')}</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="font-semibold">詳細</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.details || '')}</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="font-semibold">ヒント</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.tips || '')}</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="font-semibold">関連リンク</div>
+        ${links ? `<ul class="list-disc pl-5 mt-1">${links}</ul>` : `<div class="text-gray-500 mt-1">（未設定）</div>`}
+      </div>
+
+      <details class="mt-5">
+        <summary class="cursor-pointer text-sm text-gray-600">スコア詳細（開く）</summary>
+        <pre class="text-xs bg-gray-100 rounded-xl p-3 mt-2 overflow-auto">${escapeHtml(JSON.stringify(out.axisScores, null, 2))}</pre>
+      </details>
+    `;
+  })();
+</script>
+</body>
+</html>
 
