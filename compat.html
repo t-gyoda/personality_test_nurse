@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>相性診断</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-3xl mx-auto p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h1 class="text-2xl font-bold">相性診断</h1>
+      <a class="text-sm underline" href="./index.html">トップへ</a>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow p-5">
+      <div class="grid sm:grid-cols-2 gap-3">
+        <input id="typeA" class="border rounded-xl p-3" placeholder="診断Aタイプ（例 ENFP）" />
+        <input id="typeB" class="border rounded-xl p-3" placeholder="診断Bタイプ（例 ISTJ）" />
+      </div>
+      <button id="btn" class="mt-3 px-5 py-3 rounded-xl bg-black text-white">相性を見る</button>
+
+      <pre id="out" class="text-sm bg-gray-100 rounded-xl p-4 mt-4 overflow-auto"></pre>
+    </div>
+  </div>
+
+<script>
+  function GAS_URL(){
+    const u = (localStorage.getItem('GAS_URL') || '').trim();
+    if(!u) throw new Error('GAS_URLが未設定です（トップで保存してください）');
+    return u;
+  }
+
+  document.getElementById('btn').onclick = async () => {
+    const out = document.getElementById('out');
+    out.textContent = 'loading...';
+    try{
+      const typeA = document.getElementById('typeA').value.trim();
+      const typeB = document.getElementById('typeB').value.trim();
+      const payload = { path:'compatibility', typeA, typeB };
+
+      const r = await fetch(GAS_URL(), {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || 'compatibility失敗');
+
+      // ひとまずスコア表示（後で文章化可能）
+      out.textContent = `相性スコア: ${j.score}\n\n` + JSON.stringify(j, null, 2);
+    }catch(e){
+      out.textContent = String(e);
+    }
+  };
+</script>
+</body>
+</html>
