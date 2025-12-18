@@ -206,7 +206,13 @@
         if(!out.ok) throw new Error(out.error || 'submit失敗');
 
         document.getElementById('status').textContent = '完了';
-        renderResult(out);
+        
+        // 結果を次ページへ渡す
+        sessionStorage.setItem('LAST_RESULT_JSON', JSON.stringify(out));
+        
+        // 結果ページへ
+        location.href = `./result.html?diagnosisId=${encodeURIComponent(DIAGNOSIS_ID)}&type=${encodeURIComponent(out.typeCode)}`;
+
       }catch(err){
         document.getElementById('status').textContent = '失敗';
         alert(String(err));
