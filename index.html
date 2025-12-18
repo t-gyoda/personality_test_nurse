@@ -3,53 +3,76 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>診断サイト</title>
+  <title>管理職マネジメントスタイル診断</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
   <div class="max-w-3xl mx-auto p-6">
-    <h1 class="text-2xl font-bold mb-4">診断サイト</h1>
 
-    <div class="bg-white rounded-2xl shadow p-5 mb-4">
-      <label class="block text-sm font-semibold mb-1">GAS WebアプリURL（/exec）</label>
-      <input id="gasUrl" class="w-full border rounded-xl p-3"
-             placeholder="https://script.google.com/macros/s/XXXX/exec" />
-      <div class="flex gap-2 mt-3">
-        <button id="saveUrl" class="px-4 py-2 rounded-xl bg-black text-white">保存</button>
-        <button id="clearUrl" class="px-4 py-2 rounded-xl border">クリア</button>
-      </div>
-      <p class="text-xs text-gray-500 mt-2">※このブラウザに保存します（localStorage）</p>
+    <!-- ヘッダー -->
+    <h1 class="text-3xl font-bold mb-4">
+      管理職マネジメントスタイル診断
+    </h1>
+    <p class="text-gray-600 mb-6">
+      質問に答えることで、あなたのマネジメントスタイルの傾向を診断します。
+    </p>
+
+    <!-- GAS URL 設定 -->
+    <div class="bg-white rounded-2xl shadow p-5 mb-6">
+      <h2 class="font-semibold mb-2">初回設定（GAS連携）</h2>
+      <label class="block text-sm mb-1">GAS WebアプリURL</label>
+      <input
+        id="gasUrl"
+        class="w-full border rounded-xl p-3"
+        placeholder="https://script.google.com/macros/s/XXXX/exec"
+      />
+      <p class="text-xs text-gray-500 mt-1">
+        ※ 初回のみ設定してください（このブラウザに保存されます）
+      </p>
+      <button
+        id="saveBtn"
+        class="mt-3 px-4 py-2 rounded-xl bg-black text-white"
+      >
+        保存
+      </button>
+      <div id="saveMsg" class="text-sm text-gray-600 mt-2"></div>
     </div>
 
-    <div class="grid sm:grid-cols-3 gap-3">
-      <a class="block bg-white rounded-2xl shadow p-5 hover:shadow-md" href="./a.html">
-        <div class="font-semibold">診断A</div>
-        <div class="text-sm text-gray-600 mt-1">質問に回答 → 16タイプ判定</div>
-      </a>
-      <a class="block bg-white rounded-2xl shadow p-5 hover:shadow-md" href="./b.html">
-        <div class="font-semibold">診断B</div>
-        <div class="text-sm text-gray-600 mt-1">別質問で16タイプ判定</div>
-      </a>
-      <a class="block bg-white rounded-2xl shadow p-5 hover:shadow-md" href="./compat.html">
-        <div class="font-semibold">相性診断</div>
-        <div class="text-sm text-gray-600 mt-1">タイプ×タイプで相性</div>
+    <!-- 診断A -->
+    <div class="bg-white rounded-2xl shadow p-6">
+      <h2 class="text-xl font-semibold mb-3">診断A</h2>
+      <p class="text-gray-600 mb-4">
+        20問の質問から、あなたの管理職マネジメントスタイルを4つの軸で診断します。
+      </p>
+      <a
+        href="./a.html"
+        class="block text-center px-4 py-3 rounded-xl bg-black text-white text-lg"
+      >
+        診断Aをはじめる
       </a>
     </div>
+
   </div>
 
 <script>
-  const gasUrlInput = document.getElementById('gasUrl');
-  gasUrlInput.value = localStorage.getItem('GAS_URL') || '';
+/********************
+ * GAS URL 保存
+ ********************/
+const gasInput = document.getElementById('gasUrl');
+const saveMsg = document.getElementById('saveMsg');
 
-  document.getElementById('saveUrl').onclick = () => {
-    localStorage.setItem('GAS_URL', gasUrlInput.value.trim());
-    alert('保存しました');
-  };
-  document.getElementById('clearUrl').onclick = () => {
-    localStorage.removeItem('GAS_URL');
-    gasUrlInput.value = '';
-    alert('クリアしました');
-  };
+// 既存値があれば表示
+gasInput.value = localStorage.getItem('GAS_URL') || '';
+
+document.getElementById('saveBtn').onclick = () => {
+  const v = gasInput.value.trim();
+  if(!v){
+    saveMsg.textContent = 'URLを入力してください';
+    return;
+  }
+  localStorage.setItem('GAS_URL', v);
+  saveMsg.textContent = '保存しました';
+};
 </script>
 </body>
 </html>
