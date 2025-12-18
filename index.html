@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>診断（テスト）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="max-w-3xl mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">診断テスト（GAS連携確認）</h1>
+
+    <!-- 設定 -->
+    <div class="p-4 bg-white rounded-xl shadow mb-4">
+      <label class="block text-sm font-semibold mb-1">GAS WebアプリURL</label>
+      <input id="gasUrl" class="w-full border rounded-lg p-2"
+             placeholder="https://script.google.com/macros/s/XXXX/exec" />
+      <p class="text-xs text-gray-500 mt-1">※ここに貼って保存すると、このブラウザに記憶します</p>
+      <button id="saveUrl" class="mt-2 px-3 py-2 rounded-lg bg-black text-white">保存</button>
+    </div>
+
+    <!-- 診断A/B -->
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="p-4 bg-white rounded-xl shadow">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-semibold">診断A</h2>
+          <button class="px-3 py-2 rounded-lg border" onclick="start('A')">開始</button>
+        </div>
+        <pre id="outA" class="text-xs bg-gray-100 rounded-lg p-2 overflow-auto h-40"></pre>
+      </div>
+
+      <div class="p-4 bg-white rounded-xl shadow">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-semibold">診断B</h2>
+          <button class="px-3 py-2 rounded-lg border" onclick="start('B')">開始</button>
+        </div>
+        <pre id="outB" class="text-xs bg-gray-100 rounded-lg p-2 overflow-auto h-40"></pre>
+      </div>
+    </div>
+
+    <!-- 相性 -->
+    <div class="p-4 bg-white rounded-xl shadow mt-4">
+      <h2 class="text-lg font-semibold mb-2">相性診断（タイプ×タイプ）</h2>
+      <div class="flex flex-wrap gap-2 items-center">
+        <input id="typeA" class="border rounded-lg p-2" placeholder="typeA (例 ENFP)" />
+        <input id="typeB" class="border rounded-lg p-2" placeholder="typeB (例 ISTJ)" />
+        <button id="compatBtn" class="px-3 py-2 rounded-lg bg-black text-white">相性を見る</button>
+      </div>
+      <pre id="outC" class="text-xs bg-gray-100 rounded-lg p-2 mt-3 overflow-auto"></pre>
+    </div>
+  </div>
+
+<script>
+  // ====== 設定保存 ======
+  const gasUrlInput = document.getElementById('gasUrl');
+  gasUrlInput.value = localStorage.getItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec') || '';
+  document.getElementById('saveUrl').onclick = () => {
+    localStorage.setItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec', gasUrlInput.value.trim());
+    alert('保存しました');
+  };
+
+  function https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(){
+    const u = (localStorage.getItem('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec') || '').trim();
+    if(!u) throw new Error('https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/execが未設定です（上の欄に貼って保存してください）');
+    return u;
+  }
+
+  function sid(){
+    const k='diag_sid';
+    let v=localStorage.getItem(k);
+    if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Date.now())+Math.random()); localStorage.setItem(k,v); }
+    return v;
+  }
+
+  async function getQuestions(diagnosisId){
+    const url = `${https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec()}?path=questions&diagnosisId=${encodeURIComponent(diagnosisId)}`;
+    const r = await fetch(url);
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'questions取得失敗');
+    return j.questions;
+  }
+
+  // テスト用：全部choice1(=0)で送る（動作確認が目的）
+  async function submitAllChoice1(diagnosisId, questions){
+    const answers = {};
+    questions.forEach(q => answers[q.qId] = 0);
+
+    const payload = {
+      path: 'submit',
+      diagnosisId,
+      sessionId: sid(),
+      answers,
+      email: '', // まず空でOK
+      ua: navigator.userAgent
+    };
+
+    const r = await fetch(https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(), {
+      method:'POST',
+      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'submit失敗');
+    return j;
+  }
+
+  async function start(diagnosisId){
+    const out = document.getElementById(diagnosisId === 'A' ? 'outA' : 'outB');
+    out.textContent = 'loading...';
+    try{
+      const qs = await getQuestions(diagnosisId);
+      const res = await submitAllChoice1(diagnosisId, qs);
+      out.textContent = JSON.stringify(res, null, 2);
+    }catch(e){
+      out.textContent = String(e);
+    }
+  }
+
+  document.getElementById('compatBtn').onclick = async () => {
+    const out = document.getElementById('outC');
+    out.textContent = 'loading...';
+    try{
+      const typeA = document.getElementById('typeA').value.trim();
+      const typeB = document.getElementById('typeB').value.trim();
+      const payload = { path:'compatibility', typeA, typeB };
+
+      const r = await fetch(https://script.google.com/macros/s/AKfycbwSKCH1APHSkNGhiULfp83rAL1bk4wz_6K-J8o_qIASsdi46vR4L7UAoQ63BKSEfK15EQ/exec(), {
+        method:'POST',
+        headers:{ 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || 'compatibility失敗');
+      out.textContent = JSON.stringify(j, null, 2);
+    }catch(e){
+      out.textContent = String(e);
+    }
+  };
+</script>
+</body>
+</html>
