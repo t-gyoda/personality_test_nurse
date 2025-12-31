@@ -3,112 +3,71 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>管理職マネジメントスタイル診断</title>
+  <title>16パーソナリティ診断｜看護師向け</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="./config.js"></script>
 </head>
 <body class="bg-gray-50">
   <div class="max-w-3xl mx-auto p-6">
 
-    <!-- ヘッダー -->
     <h1 class="text-3xl font-bold mb-4">
-      管理職マネジメントスタイル診断
+      看護師向け 16パーソナリティ診断
     </h1>
     <p class="text-gray-600 mb-6">
-      質問に答えることで、あなたのマネジメントスタイルの傾向を診断します。
+      管理者・現場それぞれの関わり方を、16タイプで可視化します。
     </p>
 
-    <!-- GAS URL 設定 -->
-    <div class="bg-white rounded-2xl shadow p-5 mb-6">
-      <h2 class="font-semibold mb-2">初回設定（GAS連携）</h2>
-      <label class="block text-sm mb-1">GAS WebアプリURL</label>
-      <input
-        id="gasUrl"
-        class="w-full border rounded-xl p-3"
-        placeholder="https://script.google.com/macros/s/XXXX/exec"
-      />
-      <p class="text-xs text-gray-500 mt-1">
-        ※ 初回のみ設定してください（このブラウザに保存されます）
-      </p>
-      <button
-        id="saveBtn"
-        class="mt-3 px-4 py-2 rounded-xl bg-black text-white"
-      >
-        保存
-      </button>
-      <div id="saveMsg" class="text-sm text-gray-600 mt-2"></div>
-    </div>
-
     <div class="grid gap-6">
-    
+
       <!-- 診断A -->
       <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">管理者の“関わり方”を16タイプで</div>
-        <h2 class="text-xl font-semibold mb-2">🩺 看護師管理者向け 16パーソナリティ診断（16タイプ）</h2>
-        <p class="text-gray-600 mb-3">
-          管理者としての「距離感・伝え方・進め方・判断の傾向」から、
-          あなたのマネジメントスタイルを16タイプで整理します。
+        <div class="text-sm text-gray-500 mb-1">管理者の関わり方を16タイプで</div>
+        <h2 class="text-xl font-semibold mb-2">
+          🩺 看護師管理者向け 16パーソナリティ診断
+        </h2>
+        <p class="text-gray-600 mb-4">
+          マネジメントの距離感・伝え方・進め方・判断傾向から、
+          あなたのスタイルを16タイプで整理します。
         </p>
-        <p class="text-xs text-gray-400 mb-4">※本診断は当社独自設計の16タイプ分類です</p>
         <a href="./a.html"
            class="block text-center px-4 py-3 rounded-xl bg-black text-white text-lg">
           診断Aをはじめる
         </a>
       </div>
-    
+
       <!-- 診断B -->
       <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">現場の“働き方”を16タイプで</div>
-        <h2 class="text-xl font-semibold mb-2">🌱 看護師向け 16パーソナリティ診断（16タイプ）</h2>
-        <p class="text-gray-600 mb-3">
-          現場での「動き方・コミュニケーション・考え方の傾向」をもとに、
-          あなたの働き方スタイルを16タイプで可視化します。
+        <div class="text-sm text-gray-500 mb-1">現場の働き方を16タイプで</div>
+        <h2 class="text-xl font-semibold mb-2">
+          🌱 看護師向け 16パーソナリティ診断
+        </h2>
+        <p class="text-gray-600 mb-4">
+          現場での動き方・コミュニケーションの傾向を
+          16タイプで可視化します。
         </p>
-        <p class="text-xs text-gray-400 mb-4">※本診断は当社独自設計の16タイプ分類です</p>
         <a href="./b.html"
            class="block text-center px-4 py-3 rounded-xl bg-emerald-600 text-white text-lg">
           診断Bをはじめる
         </a>
       </div>
-    
+
       <!-- 相性診断 -->
       <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">相互理解で、チームが回りやすくなる</div>
-        <h2 class="text-xl font-semibold mb-2">🤝 関係性サポート診断（管理者×現場）</h2>
+        <div class="text-sm text-gray-500 mb-1">関係性サポート</div>
+        <h2 class="text-xl font-semibold mb-2">
+          🤝 関係性サポート診断
+        </h2>
         <p class="text-gray-600 mb-4">
-          管理者タイプ×現場タイプの組み合わせから、
-          「すれ違いポイント」と「うまくいく関わり方」をレポートします。<br>
-          良好な関係づくりのためのコミュニケーション補助ツールとして使えます。
+          管理者×現場のタイプから、
+          よりよい関わり方のヒントを提供します。
         </p>
         <a href="./compat.html"
            class="block text-center px-4 py-3 rounded-xl bg-gray-800 text-white text-lg">
-          関係性サポート診断を見る
+          相性診断を見る
         </a>
       </div>
-    
+
     </div>
-
-
   </div>
-
-<script>
-/********************
- * GAS URL 保存
- ********************/
-const gasInput = document.getElementById('gasUrl');
-const saveMsg = document.getElementById('saveMsg');
-
-// 既存値があれば表示
-gasInput.value = localStorage.getItem('GAS_URL') || '';
-
-document.getElementById('saveBtn').onclick = () => {
-  const v = gasInput.value.trim();
-  if(!v){
-    saveMsg.textContent = 'URLを入力してください';
-    return;
-  }
-  localStorage.setItem('GAS_URL', v);
-  saveMsg.textContent = '保存しました';
-};
-</script>
 </body>
 </html>
