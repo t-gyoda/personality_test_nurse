@@ -36,11 +36,13 @@
     };
   }
 
+  <script src="./config.js"></script>
+  <script>
   function GAS_URL(){
-    const u = (localStorage.getItem('GAS_URL') || '').trim();
-    if(!u) throw new Error('GAS_URLが未設定です（トップで保存してください）');
-    return u;
+    return window.APP_CONFIG.GAS_URL;
   }
+  </script>
+
 
   async function sendEmail(out){
     const email = document.getElementById('email').value.trim();
