@@ -57,11 +57,12 @@ function showGasBoxIfNeeded(){
 }
 showGasBoxIfNeeded();
 
+<script src="./config.js"></script>
+<script>
 function GAS_URL(){
-  const u = (localStorage.getItem('GAS_URL') || '').trim();
-  if(!u) throw new Error('GAS_URLが未設定です（トップページで保存してください）');
-  return u;
+  return window.APP_CONFIG.GAS_URL;
 }
+</script>
 
 function sid(){
   const k = 'diag_sid';
