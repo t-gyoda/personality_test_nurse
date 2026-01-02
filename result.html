@@ -127,18 +127,28 @@
       <div class="text-2xl font-bold mt-1">${escapeHtml(out.typeCode)} ${out.report?.typeName ? `（${escapeHtml(out.report.typeName)}）` : ''}</div>
 
       <div class="mt-4">
-        <div class="font-semibold">概要</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.summary || '')}</div>
+        <div class="font-semibold">特徴</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.feasure || '')}</div>
       </div>
 
       <div class="mt-4">
-        <div class="font-semibold">詳細</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.details || '')}</div>
+        <div class="font-semibold">性格特性</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.traits || '')}</div>
       </div>
 
       <div class="mt-4">
-        <div class="font-semibold">ヒント</div>
-        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.tips || '')}</div>
+        <div class="font-semibold">強み</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.strengths || '')}</div>
+      </div>
+      
+      <div class="mt-4">
+        <div class="font-semibold">注意点</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.cautions || '')}</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="font-semibold">ワンポイントアドバイス</div>
+        <div class="text-gray-700 whitespace-pre-wrap mt-1">${escapeHtml(out.report?.advice || '')}</div>
       </div>
 
       <div class="mt-4">
