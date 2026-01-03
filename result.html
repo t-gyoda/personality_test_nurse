@@ -155,11 +155,6 @@
         <div class="font-semibold">関連リンク</div>
         ${links ? `<ul class="list-disc pl-5 mt-1">${links}</ul>` : `<div class="text-gray-500 mt-1">（未設定）</div>`}
       </div>
-
-      <details class="mt-5">
-        <summary class="cursor-pointer text-sm text-gray-600">スコア詳細（開く）</summary>
-        <pre class="text-xs bg-gray-100 rounded-xl p-3 mt-2 overflow-auto">${escapeHtml(JSON.stringify(out.axisScores, null, 2))}</pre>
-      </details>
     `;
 
     // 送信ボタンのイベント紐付け（resultBoxを書き換えても mailBox は別なので消えない）
