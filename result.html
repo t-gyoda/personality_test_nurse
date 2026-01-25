@@ -1,3 +1,20 @@
+<script>
+  // ★ これが表示されなければ「このscriptが実行されていない」
+  document.addEventListener('DOMContentLoaded', () => {
+    const m = document.getElementById('msg');
+    if (m) m.textContent = 'JS起動OK（ここが出ればscript実行中）';
+  });
+
+  // 以下、既存のコード...
+</script>
+
+document.addEventListener('DOMContentLoaded', () => {
+  const raw = sessionStorage.getItem('LAST_RESULT_JSON');
+  const m = document.getElementById('msg');
+  if (m) m.textContent = 'JS起動OK / session=' + (raw ? 'あり' : 'なし');
+});
+
+
 <!doctype html>
 <html lang="ja">
 <head>
