@@ -10,7 +10,9 @@
 
 <body class="bg-[#f6f3ef] text-slate-800">
   <div class="max-w-4xl mx-auto p-6">
+    <!-- Tailwind の動的クラス生成対策（safelist用） -->
     <div class="hidden bg-amber-400/80 bg-slate-400/80 bg-emerald-400/80 bg-rose-400/80"></div>
+
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
       <h1 class="text-2xl font-bold text-slate-800">診断結果</h1>
       <a class="text-sm text-slate-500 underline" href="./index.html">トップへ</a>
@@ -18,26 +20,29 @@
 
     <!-- 結果表示エリア（ここだけを描き換える） -->
     <div id="resultBox" class="bg-[#fdfcf9] rounded-3xl p-5 md:p-8">
-    　<div id="msg" class="text-gray-600">読み込み中…</div>
+      <div id="msg" class="text-gray-600">読み込み中…</div>
     </div>
 
     <!-- メール送信エリア（resultBoxとは別にする：消えない） -->
     <div id="mailBox" class="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 mt-6 hidden">
       <div class="font-semibold mb-2 text-slate-800">結果をメールで受け取る（任意）</div>
-      <input id="email" type="email" class="w-full border border-slate-200 rounded-2xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="メールアドレス" />
+      <input id="email" type="email"
+        class="w-full border border-slate-200 rounded-2xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
+        placeholder="メールアドレス" />
       <label class="flex items-center gap-2 mt-3 text-sm text-slate-600">
         <input id="consent" type="checkbox" class="h-4 w-4">
         <span>メール送信に同意します</span>
       </label>
       <div class="flex items-center gap-2 mt-3">
-      　<button id="sendBtn" class="px-5 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">送信</button>
+        <button id="sendBtn" class="px-5 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">送信</button>
         <div id="sendMsg" class="text-sm text-slate-500"></div>
       </div>
-      
+
       <div class="text-xs text-slate-400 mt-2">
         ※本機能は送信希望者のみ。入力内容は目的外利用しません。
       </div>
     </div>
+
     <div class="mt-6 flex flex-wrap gap-2">
       <a id="backLink" class="px-4 py-2 rounded-2xl border border-slate-200 bg-white" href="./index.html">戻る</a>
       <a class="px-4 py-2 rounded-2xl bg-slate-800 text-white" href="./types.html">16タイプ一覧へ</a>
@@ -46,6 +51,7 @@
   </div>
 
 <script>
+  // ===== 共通ユーティリティ =====
   function GAS_URL(){
     const u = window.APP_CONFIG && window.APP_CONFIG.GAS_URL;
     if(!u) throw new Error('APP_CONFIG.GAS_URL が見つかりません（config.js を確認）');
@@ -53,7 +59,9 @@
   }
 
   function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    return String(s ?? '').replace(/[&<>"']/g, m => ({
+      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[m]));
   }
 
   function traitColorClass(title){
@@ -76,112 +84,6 @@
     try { return JSON.parse(raw); } catch(e){ return null; }
   }
 
-  async function sendEmail(out){
-    const email = document.getElementById('email').value.trim();
-    const consent = document.getElementById('consent').checked;
-    const msg = document.getElementById('sendMsg');
-    msg.textContent = '';
-
-    if(!email){ msg.textContent = 'メールアドレスを入力してください'; return; }
-    if(!consent){ msg.textContent = '同意にチェックしてください'; return; }
-
-    msg.textContent = '送信中…';
-
-    const payload = {
-      path: 'sendResultEmail',
-      email,
-
-  (function main(){
-    const q = readQuery();
-    const out = loadResultFromSession();
-
-    // 戻るリンク（診断A/Bに戻す）
-    const back = document.getElementById('backLink');
-    if(q.diagnosisId === 'A') back.href = './a.html';
-    else if(q.diagnosisId === 'B') back.href = './b.html';
-
-    const resultBox = document.getElementById('resultBox');
-    const msg = document.getElementById('msg');
-
-    if(!out){
-      msg.textContent = '結果データが見つかりませんでした。診断ページからもう一度実行してください。';
-      return;
-    }
-
-    // メール欄は結果があるときだけ表示
-    document.getElementById('mailBox').classList.remove('hidden');
-
-    const links = (out.report?.links || [])
-      .map(l => `<li><a class="underline" href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.label)}</a></li>`)
-      .join('');
-
-    const typeName = out.report?.typeName || out.typeName || out.typeCode || '診断タイプ';
-    const typeCode = out.typeCode || '';
-
-    resultBox.innerHTML = `
-    <div class="text-xs text-slate-400">診断 ${escapeHtml(out.diagnosisId || q.diagnosisId)}</div>
-      <section class="mt-4 grid gap-5 md:grid-cols-[1.05fr_0.95fr] items-start">
-        <div>
-          <div class="text-left">
-            <div class="text-3xl md:text-4xl font-bold tracking-wide text-slate-800">${escapeHtml(typeName)}</div>
-            <div class="mt-1 text-sm md:text-base text-slate-500 font-medium">${escapeHtml(typeCode)}</div>
-          </div>
-          <div class="mt-4 text-slate-600 whitespace-pre-wrap leading-relaxed">${escapeHtml(out.report?.feature || '')}</div>
-        </div>
-    <div class="flex flex-col items-center gap-3">
-          <div class="w-full aspect-square max-w-sm rounded-[28px] bg-[#f5f2ee] border border-slate-200 flex items-center justify-center">
-            <div class="text-6xl md:text-7xl">🩺</div>
-          </div>
-          <div class="text-center text-xs text-slate-500">
-            あなたらしさを映したナースキャラクター
-          </div>
-        </div>
-      </section>
-
-      <section class="mt-8">
-        <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
-          <span class="text-lg">📊</span>性格特性
-        </div>
-          <div class="mt-3 grid gap-3 md:grid-cols-2">${renderTraits(out.traits)}</div>
-      </section>
-
-      <section class="mt-8 grid gap-5">
-        <div class="rounded-2xl bg-[#f6f2eb] border border-slate-200 p-5">
-          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
-            <span class="text-lg">✨</span>強み
-          </div>
-          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.strengths || '')}</div>
-        </div>
-        <div class="rounded-2xl bg-[#f1f5f4] border border-slate-200 p-5">
-          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
-            <span class="text-lg">🌿</span>注意点
-          </div>
-          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.cautions || '')}</div>
-        </div>
-        <div class="rounded-2xl bg-[#f5f1f3] border border-slate-200 p-5">
-          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
-            <span class="text-lg">💡</span>ワンポイントアドバイス
-          </div>
-          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.advice || '')}</div>
-        </div>
-      </section>
-     <section class="mt-8">
-        <div class="font-semibold text-slate-800 flex items-center gap-2">
-          <span class="text-lg">🔗</span>関連リンク
-        </div>
-        ${links ? `<ul class="list-disc pl-5 mt-2 text-slate-600">${links}</ul>` : `<div class="text-slate-500 mt-2">（未設定）</div>`}
-      </section>
-    `;
-
-    // 送信ボタンのイベント紐付け（resultBoxを書き換えても mailBox は別なので消えない）
-    document.getElementById('sendBtn').onclick = async () => {
-      try{
-        await sendEmail(out);
-      }catch(e){
-        document.getElementById('sendMsg').textContent = 'エラー：' + e.message;
-      }
-    };
-  })();
   function renderTraits(traits){
     if(!Array.isArray(traits) || traits.length === 0){
       return `<div class="text-slate-500 mt-1">（データなし）</div>`;
@@ -195,7 +97,7 @@
             <div class="font-medium text-slate-700">${escapeHtml(t.title)}</div>
             <div class="text-slate-500">${escapeHtml(t.label || '')}</div>
           </div>
-            <div class="flex justify-between text-xs text-slate-400 mt-2">
+          <div class="flex justify-between text-xs text-slate-400 mt-2">
             <div>${escapeHtml(t.left)}</div>
             <div>${escapeHtml(t.right)}</div>
           </div>
@@ -206,6 +108,176 @@
       `;
     }).join('');
   }
+
+  // ===== メール送信 =====
+  async function sendEmail(out){
+    const emailEl = document.getElementById('email');
+    const consentEl = document.getElementById('consent');
+    const msgEl = document.getElementById('sendMsg');
+    const btnEl = document.getElementById('sendBtn');
+
+    const email = (emailEl?.value || '').trim();
+    const consent = !!consentEl?.checked;
+
+    msgEl.textContent = '';
+
+    if(!email){ msgEl.textContent = 'メールアドレスを入力してください'; return; }
+    if(!consent){ msgEl.textContent = '同意にチェックしてください'; return; }
+
+    btnEl.disabled = true;
+    btnEl.classList.add('opacity-60');
+    msgEl.textContent = '送信中…';
+
+    const payload = {
+      path: 'sendResultEmail',
+      email,
+      diagnosisId: out.diagnosisId || '',
+      typeCode: out.typeCode || '',
+      typeName: out.report?.typeName || out.typeName || '',
+      report: out.report || {},
+      traits: out.traits || [],
+      ts: Date.now()
+    };
+
+    let res;
+    try{
+      res = await fetch(GAS_URL(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+        redirect: 'follow'
+      });
+    } catch (e){
+      throw new Error('通信に失敗しました（ネットワーク/CORS/GAS URL）');
+    }
+
+    const text = await res.text();
+    let json = null;
+    try { json = JSON.parse(text); } catch(e){ /* textのまま */ }
+
+    if(!res.ok){
+      throw new Error('送信に失敗しました（HTTP ' + res.status + '）');
+    }
+
+    // GASが {ok:true,message:""} を返す想定。違っても表示は崩れないようにする
+    if(json && json.ok){
+      msgEl.textContent = json.message || '送信しました';
+    } else if (json && json.error){
+      throw new Error(json.error);
+    } else {
+      // text応答でも一応「成功」扱いにする（GAS側仕様が違う場合）
+      msgEl.textContent = '送信しました';
+    }
+
+    btnEl.disabled = false;
+    btnEl.classList.remove('opacity-60');
+  }
+
+  // ===== メイン描画 =====
+  (function main(){
+    const resultBox = document.getElementById('resultBox');
+    const msg = document.getElementById('msg');
+
+    try{
+      const q = readQuery();
+      const out = loadResultFromSession();
+
+      // 戻るリンク（診断A/Bに戻す）
+      const back = document.getElementById('backLink');
+      if(q.diagnosisId === 'A') back.href = './a.html';
+      else if(q.diagnosisId === 'B') back.href = './b.html';
+
+      if(!out){
+        if(msg) msg.textContent = '結果データが見つかりませんでした。診断ページからもう一度実行してください。';
+        return;
+      }
+
+      // メール欄は結果があるときだけ表示
+      document.getElementById('mailBox').classList.remove('hidden');
+
+      const links = (out.report?.links || [])
+        .map(l => `<li><a class="underline" href="${escapeHtml(l.url)}" target="_blank" rel="noreferrer">${escapeHtml(l.label)}</a></li>`)
+        .join('');
+
+      const typeName = out.report?.typeName || out.typeName || out.typeCode || '診断タイプ';
+      const typeCode = out.typeCode || '';
+
+      resultBox.innerHTML = `
+        <div class="text-xs text-slate-400">診断 ${escapeHtml(out.diagnosisId || q.diagnosisId)}</div>
+
+        <section class="mt-4 grid gap-5 md:grid-cols-[1.05fr_0.95fr] items-start">
+          <div>
+            <div class="text-left">
+              <div class="text-3xl md:text-4xl font-bold tracking-wide text-slate-800">${escapeHtml(typeName)}</div>
+              <div class="mt-1 text-sm md:text-base text-slate-500 font-medium">${escapeHtml(typeCode)}</div>
+            </div>
+            <div class="mt-4 text-slate-600 whitespace-pre-wrap leading-relaxed">${escapeHtml(out.report?.feature || '')}</div>
+          </div>
+
+          <div class="flex flex-col items-center gap-3">
+            <div class="w-full aspect-square max-w-sm rounded-[28px] bg-[#f5f2ee] border border-slate-200 flex items-center justify-center">
+              <div class="text-6xl md:text-7xl">🩺</div>
+            </div>
+            <div class="text-center text-xs text-slate-500">
+              あなたらしさを映したナースキャラクター
+            </div>
+          </div>
+        </section>
+
+        <section class="mt-8">
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+            <span class="text-lg">📊</span>性格特性
+          </div>
+          <div class="mt-3 grid gap-3 md:grid-cols-2">${renderTraits(out.traits)}</div>
+        </section>
+
+        <section class="mt-8 grid gap-5">
+          <div class="rounded-2xl bg-[#f6f2eb] border border-slate-200 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">✨</span>強み
+            </div>
+            <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.strengths || '')}</div>
+          </div>
+
+          <div class="rounded-2xl bg-[#f1f5f4] border border-slate-200 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">🌿</span>注意点
+            </div>
+            <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.cautions || '')}</div>
+          </div>
+
+          <div class="rounded-2xl bg-[#f5f1f3] border border-slate-200 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">💡</span>ワンポイントアドバイス
+            </div>
+            <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.advice || '')}</div>
+          </div>
+        </section>
+
+        <section class="mt-8">
+          <div class="font-semibold text-slate-800 flex items-center gap-2">
+            <span class="text-lg">🔗</span>関連リンク
+          </div>
+          ${links ? `<ul class="list-disc pl-5 mt-2 text-slate-600">${links}</ul>` : `<div class="text-slate-500 mt-2">（未設定）</div>`}
+        </section>
+      `;
+
+      // 送信ボタン
+      document.getElementById('sendBtn').onclick = async () => {
+        const sendMsg = document.getElementById('sendMsg');
+        try{
+          await sendEmail(out);
+        }catch(e){
+          sendMsg.textContent = 'エラー：' + (e?.message || e);
+          console.error(e);
+        }
+      };
+
+    } catch(e){
+      if(msg) msg.textContent = 'エラー：' + (e?.message || e);
+      console.error(e);
+    }
+  })();
 </script>
 </body>
 </html>
