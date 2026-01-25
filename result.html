@@ -8,39 +8,40 @@
   <script src="./config.js"></script>
 </head>
 
-<body class="bg-gradient-to-b from-rose-50 via-amber-50 to-sky-50 text-slate-800">
+<body class="bg-[#f6f3ef] text-slate-800">
   <div class="max-w-4xl mx-auto p-6">
+    <div class="hidden bg-amber-400/80 bg-slate-400/80 bg-emerald-400/80 bg-rose-400/80"></div>
     <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
       <h1 class="text-2xl font-bold text-slate-800">診断結果</h1>
       <a class="text-sm text-slate-500 underline" href="./index.html">トップへ</a>
     </div>
 
     <!-- 結果表示エリア（ここだけを描き換える） -->
-    <div id="resultBox" class="bg-white/80 backdrop-blur rounded-3xl shadow-xl border border-rose-100 p-5 md:p-8">
-      <div id="msg" class="text-gray-600">読み込み中…</div>
+    <div id="resultBox" class="bg-[#fdfcf9] rounded-3xl p-5 md:p-8">
+    　<div id="msg" class="text-gray-600">読み込み中…</div>
     </div>
 
     <!-- メール送信エリア（resultBoxとは別にする：消えない） -->
-    <div id="mailBox" class="bg-white/90 backdrop-blur rounded-3xl shadow-lg border border-sky-100 p-5 md:p-6 mt-6 hidden">
+    <div id="mailBox" class="bg-white rounded-3xl border border-slate-200 p-5 md:p-6 mt-6 hidden">
       <div class="font-semibold mb-2 text-slate-800">結果をメールで受け取る（任意）</div>
-      <input id="email" type="email" class="w-full border border-sky-100 rounded-2xl p-3 bg-white/90 focus:outline-none focus:ring-2 focus:ring-sky-200" placeholder="メールアドレス" />
+      <input id="email" type="email" class="w-full border border-slate-200 rounded-2xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-slate-200" placeholder="メールアドレス" />
       <label class="flex items-center gap-2 mt-3 text-sm text-slate-600">
         <input id="consent" type="checkbox" class="h-4 w-4">
         <span>メール送信に同意します</span>
       </label>
       <div class="flex items-center gap-2 mt-3">
-        <button id="sendBtn" class="px-5 py-2 rounded-2xl bg-slate-900 text-white shadow-sm hover:bg-slate-800">送信</button>
+      　<button id="sendBtn" class="px-5 py-2 rounded-2xl bg-slate-900 text-white hover:bg-slate-800">送信</button>
         <div id="sendMsg" class="text-sm text-slate-500"></div>
       </div>
+      
       <div class="text-xs text-slate-400 mt-2">
         ※本機能は送信希望者のみ。入力内容は目的外利用しません。
       </div>
     </div>
-
     <div class="mt-6 flex flex-wrap gap-2">
-      <a id="backLink" class="px-4 py-2 rounded-2xl border border-slate-200 bg-white/80" href="./index.html">戻る</a>
-      <a class="px-4 py-2 rounded-2xl bg-slate-800 text-white shadow-sm" href="./types.html">16タイプ一覧へ</a>
-      <a class="px-4 py-2 rounded-2xl bg-slate-900 text-white shadow-sm" href="./compat.html">相性診断へ</a>
+      <a id="backLink" class="px-4 py-2 rounded-2xl border border-slate-200 bg-white" href="./index.html">戻る</a>
+      <a class="px-4 py-2 rounded-2xl bg-slate-800 text-white" href="./types.html">16タイプ一覧へ</a>
+      <a class="px-4 py-2 rounded-2xl bg-slate-900 text-white" href="./compat.html">相性診断へ</a>
     </div>
   </div>
 
@@ -53,6 +54,15 @@
 
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  function traitColorClass(title){
+    const key = (title || '').trim();
+    if(key.includes('距離')) return 'bg-amber-400/80';
+    if(key.includes('コミュニケーション')) return 'bg-slate-400/80';
+    if(key.includes('推進')) return 'bg-emerald-400/80';
+    if(key.includes('思考')) return 'bg-rose-400/80';
+    return 'bg-slate-400/80';
   }
 
   function readQuery(){
@@ -80,23 +90,7 @@
     const payload = {
       path: 'sendResultEmail',
       email,
-      diagnosisId: out.diagnosisId || '',
-      typeCode: out.typeCode,
-      axisScores: out.axisScores || {},
-      report: out.report || {}
-    };
-
-    const r = await fetch(GAS_URL(), {
-      method:'POST',
-      headers:{ 'Content-Type':'text/plain;charset=utf-8' },
-      body: JSON.stringify(payload)
-    });
-
-    const j = await r.json();
-    if(!j.ok) throw new Error(j.error || '送信に失敗しました');
-
-    msg.textContent = '送信しました';
-  }
+@@ -100,95 +110,120 @@
 
   (function main(){
     const q = readQuery();
@@ -126,60 +120,53 @@
     const typeCode = out.typeCode || '';
 
     resultBox.innerHTML = `
-      <div class="text-xs text-slate-400">診断 ${escapeHtml(out.diagnosisId || q.diagnosisId)}</div>
-      <section class="mt-3 text-center">
-        <div class="text-3xl md:text-4xl font-bold tracking-wide text-slate-800">${escapeHtml(typeName)}</div>
-        <div class="mt-1 text-sm md:text-base text-slate-500 font-medium">${escapeHtml(typeCode)}</div>
-      </section>
-
-      <section class="mt-6 grid gap-6 md:grid-cols-[1.1fr_0.9fr] items-center">
-        <div class="space-y-4">
-          <div class="rounded-2xl bg-white/80 border border-rose-100 p-4">
-            <div class="font-semibold text-slate-800 flex items-center gap-2">
-              <span class="text-lg">🌷</span>特徴
-            </div>
-            <div class="text-slate-600 whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.feature || '')}</div>
+    <div class="text-xs text-slate-400">診断 ${escapeHtml(out.diagnosisId || q.diagnosisId)}</div>
+      <section class="mt-4 grid gap-5 md:grid-cols-[1.05fr_0.95fr] items-start">
+        <div>
+          <div class="text-left">
+            <div class="text-3xl md:text-4xl font-bold tracking-wide text-slate-800">${escapeHtml(typeName)}</div>
+            <div class="mt-1 text-sm md:text-base text-slate-500 font-medium">${escapeHtml(typeCode)}</div>
           </div>
+          <div class="mt-4 text-slate-600 whitespace-pre-wrap leading-relaxed">${escapeHtml(out.report?.feature || '')}</div>
         </div>
-        <div class="relative">
-          <div class="aspect-square rounded-[32px] bg-gradient-to-br from-rose-100 via-amber-100 to-sky-100 border border-rose-200 shadow-inner flex items-center justify-center">
-            <div class="text-6xl md:text-7xl drop-shadow-sm">🩺</div>
+    <div class="flex flex-col items-center gap-3">
+          <div class="w-full aspect-square max-w-sm rounded-[28px] bg-[#f5f2ee] border border-slate-200 flex items-center justify-center">
+            <div class="text-6xl md:text-7xl">🩺</div>
           </div>
-          <div class="absolute -bottom-3 left-6 right-6 rounded-full bg-white/80 border border-rose-100 text-center text-xs text-slate-500 py-2 shadow-sm">
+          <div class="text-center text-xs text-slate-500">
             あなたらしさを映したナースキャラクター
           </div>
         </div>
       </section>
 
       <section class="mt-8">
-        <div class="font-semibold text-slate-800 flex items-center gap-2">
+        <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
           <span class="text-lg">📊</span>性格特性
         </div>
-        <div class="mt-2">${renderTraits(out.traits)}</div>
+          <div class="mt-3 grid gap-3 md:grid-cols-2">${renderTraits(out.traits)}</div>
       </section>
 
-      <section class="mt-8 grid gap-5 md:grid-cols-3">
-        <div class="rounded-2xl bg-white/80 border border-amber-100 p-4">
-          <div class="font-semibold text-slate-800 flex items-center gap-2">
+      <section class="mt-8 grid gap-5">
+        <div class="rounded-2xl bg-[#f6f2eb] border border-slate-200 p-5">
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
             <span class="text-lg">✨</span>強み
           </div>
-          <div class="text-slate-600 whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.strengths || '')}</div>
+          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.strengths || '')}</div>
         </div>
-        <div class="rounded-2xl bg-white/80 border border-sky-100 p-4">
-          <div class="font-semibold text-slate-800 flex items-center gap-2">
+        <div class="rounded-2xl bg-[#f1f5f4] border border-slate-200 p-5">
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
             <span class="text-lg">🌿</span>注意点
           </div>
-          <div class="text-slate-600 whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.cautions || '')}</div>
+          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.cautions || '')}</div>
         </div>
-        <div class="rounded-2xl bg-white/80 border border-rose-100 p-4">
-          <div class="font-semibold text-slate-800 flex items-center gap-2">
+        <div class="rounded-2xl bg-[#f5f1f3] border border-slate-200 p-5">
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
             <span class="text-lg">💡</span>ワンポイントアドバイス
           </div>
-          <div class="text-slate-600 whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.advice || '')}</div>
+          <div class="text-slate-600 text-base whitespace-pre-wrap mt-2 leading-relaxed">${escapeHtml(out.report?.advice || '')}</div>
         </div>
       </section>
-
-      <section class="mt-8">
+     <section class="mt-8">
         <div class="font-semibold text-slate-800 flex items-center gap-2">
           <span class="text-lg">🔗</span>関連リンク
         </div>
@@ -202,18 +189,19 @@
     }
     return traits.map(t => {
       const p = Math.max(0, Math.min(100, Number(t.percentLeft ?? 50)));
+      const barClass = traitColorClass(t.title);
       return `
-        <div class="mt-4 rounded-2xl border border-slate-100 bg-white/80 p-4">
-          <div class="flex flex-wrap justify-between gap-2 text-sm">
+        <div class="rounded-2xl border border-slate-100 bg-white p-4">
+          <div class="flex flex-wrap justify-between gap-2 text-base">
             <div class="font-medium text-slate-700">${escapeHtml(t.title)}</div>
             <div class="text-slate-500">${escapeHtml(t.label || '')}</div>
           </div>
-          <div class="flex justify-between text-xs text-slate-400 mt-2">
+            <div class="flex justify-between text-xs text-slate-400 mt-2">
             <div>${escapeHtml(t.left)}</div>
             <div>${escapeHtml(t.right)}</div>
           </div>
           <div class="w-full h-3 bg-slate-100 rounded-full mt-3 overflow-hidden">
-            <div class="h-3 bg-gradient-to-r from-rose-300 via-amber-300 to-sky-300" style="width:${p}%"></div>
+            <div class="h-3 ${barClass}" style="width:${p}%"></div>
           </div>
         </div>
       `;
