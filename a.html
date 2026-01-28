@@ -133,54 +133,87 @@
     }
 
     function renderQuestions(questions){
-      const form = document.getElementById('form');
-      form.innerHTML = '';
-      updateProgress(questions);
-
-      questions.forEach(q => {
-        const box = document.createElement('div');
-        box.className = 'py-6 border-b border-rose-100/80';
-
-        const title = document.createElement('div');
-        // 質問：少し大きく＋中央より
+    const form = document.getElementById('form');
+    form.innerHTML = '';
+    updateProgress(questions);
+  
+    questions.forEach(q => {
+      const box = document.createElement('div');
+      box.className = 'py-6 border-b border-rose-100/80';
+  
+      const title = document.createElement('div');
+  
+      // ★Q1だけ「つぶやき」っぽく：Q番号を主張しない・少し小さめ・余白広め・少し左寄り
+      if(q.order === 1){
+        title.className = 'font-medium mb-5 text-slate-700 text-lg sm:text-xl text-left leading-relaxed';
+        title.innerHTML = `
+          <span class="inline-flex items-center gap-2">
+            <span class="text-slate-400">🌱</span>
+            <span class="text-slate-500 text-sm sm:text-base">はじめにひとつだけ</span>
+          </span>
+          <div class="mt-2">
+            <span class="text-slate-400 text-sm mr-1">Q${q.order}.</span>
+            <span>${q.questionText}</span>
+          </div>
+        `;
+      }else{
+        // 既存：質問は少し大きく＆中央寄り
         title.className = 'font-semibold mb-4 text-slate-800 text-xl sm:text-2xl text-center';
         title.textContent = `Q${q.order}. ${q.questionText}`;
-
-        const choices = document.createElement('div');
-        choices.className = 'flex gap-3 flex-col sm:flex-row';
-
-        (q.choices || []).forEach((c, idx) => {
-          const btn = document.createElement('button');
-          btn.type = 'button';
-          btn.textContent = c.text;
-
-          // 回答ボタン：ピンク系、文字は中央寄り＆少し大きく
+      }
+  
+      const choices = document.createElement('div');
+      choices.className = 'flex gap-3 flex-col sm:flex-row';
+  
+      (q.choices || []).forEach((c, idx) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = c.text;
+  
+        // ★Q1だけ：選ぶ“決断感”を減らす（より白い・影なし・変化はじわっと）
+        if(q.order === 1){
+          btn.className =
+            'flex-1 px-4 py-3 rounded-2xl border border-rose-200/60 bg-white/90 ' +
+            'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 ' +
+            'transition duration-150 hover:bg-rose-50 hover:border-rose-200';
+        }else{
+          // 既存：ピンク系、文字は中央寄り＆少し大きく
           btn.className =
             'flex-1 px-4 py-3 rounded-2xl border border-rose-200/80 bg-white/80 ' +
             'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 shadow-sm ' +
             'hover:border-rose-300 hover:bg-rose-50 transition';
-
-          btn.onclick = () => {
-            [...choices.children].forEach(b => {
-              b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+        }
+  
+        btn.onclick = () => {
+          [...choices.children].forEach(b => {
+            b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md','scale-[1.02]');
+            // Q1は影を使わないので、戻しも控えめ
+            if(q.order === 1){
+              b.classList.add('bg-white/90','text-slate-800');
+            }else{
               b.classList.add('bg-white/80','text-slate-800');
-            });
-
-            btn.classList.remove('bg-white/80','text-slate-800');
-            btn.classList.add('bg-[#e38fac]','text-white','border-transparent','shadow-md');
-
-            form.dataset[q.qId] = idx; // 0 or 1
-            updateProgress(questions);
-          };
-
-          choices.appendChild(btn);
-        });
-
-        box.appendChild(title);
-        box.appendChild(choices);
-        form.appendChild(box);
+            }
+          });
+  
+          // ★選択時：Q1は“じわっと”、Q2以降は通常の強調
+          btn.classList.remove('bg-white/90','bg-white/80','text-slate-800');
+          btn.classList.add('bg-[#e38fac]','text-white','border-transparent');
+          if(q.order !== 1) btn.classList.add('shadow-md');
+          btn.classList.add('scale-[1.02]'); // ほんの少しだけ達成感
+  
+          form.dataset[q.qId] = idx; // 0 or 1
+          updateProgress(questions);
+        };
+  
+        choices.appendChild(btn);
       });
-    }
+  
+      box.appendChild(title);
+      box.appendChild(choices);
+      form.appendChild(box);
+    });
+  }
+
 
     async function submitAnswers(questions){
       const form = document.getElementById('form');
