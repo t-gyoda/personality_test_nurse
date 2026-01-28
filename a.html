@@ -15,9 +15,13 @@
   <div class="relative">
     <div class="max-w-3xl mx-auto p-6">
 
-      <!-- トップバー（左上ピルは削除。右のトップへだけ残す） -->
+      <!-- トップバー -->
       <div class="mb-5">
-        <div class="flex items-center justify-end text-sm text-slate-500">
+        <div class="flex items-center justify-between text-sm text-slate-500">
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 font-semibold text-slate-700 shadow-sm border border-rose-100">
+            <span>🌷</span>
+            <span>看護師タイプ診断</span>
+          </div>
           <a href="./index.html" class="font-semibold text-slate-500 hover:text-slate-700">トップへ</a>
         </div>
       </div>
@@ -32,34 +36,22 @@
         </div>
       </div>
 
-     <!-- タイトル＋説明（半分囲い：上＋左右のみ / 下は開ける） -->
+      <!-- タイトル＋説明（枠で囲い、かわいさ＋落ち着き） -->
       <div class="mt-6 mb-7">
-        <div class="relative">
-          <!-- 半分囲いカード -->
-          <div class="rounded-3xl bg-white/75 shadow-sm px-6 py-7
-                      border border-rose-200/70 border-b-0">
-            <h1 class="text-center leading-tight">
-              <!-- 1行目（同色） -->
-              <div class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800">
-                看護師タイプ診断～
-              </div>
-              <!-- 2行目（同色・少し小さめ） -->
-              <div class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
-                病院を支える管理職向け～
-              </div>
-            </h1>
-      
-            <!-- タイトルと説明文はスペースを空ける -->
-            <p class="text-base sm:text-lg text-slate-600 mt-5 text-center">
-              あなたの現場とのかかわり方を見える化。
-            </p>
-          </div>
-      
-          <!-- 下側の“開き”をかわいく（開いているのに途切れて見えない工夫） -->
-          <div class="h-4"></div>
-          <div class="mx-6 -mt-2 h-1 rounded-full bg-rose-200/70"></div>
-      
-          <!-- ほんのり楽しい装飾（任意：残してOK） -->
+        <div class="rounded-3xl border border-rose-200/70 bg-white/70 shadow-sm px-6 py-6">
+          <div class="absolute opacity-0 pointer-events-none select-none">.</div>
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-center text-slate-800 leading-tight">
+            看護師タイプ診断<br class="hidden sm:block" />
+            <span class="sm:hidden"> </span>
+            <span class="text-rose-500">病院を支える管理職向け</span>
+          </h1>
+
+          <!-- タイトルと説明文の間隔をしっかり -->
+          <p class="text-base sm:text-lg text-slate-600 mt-4 text-center">
+            あなたの現場とのかかわり方を見える化。
+          </p>
+
+          <!-- ほんのり楽しい装飾 -->
           <div class="mt-5 flex justify-center">
             <div class="h-2 w-24 rounded-full bg-gradient-to-r from-rose-200 via-pink-200 to-rose-100"></div>
           </div>
@@ -133,87 +125,54 @@
     }
 
     function renderQuestions(questions){
-    const form = document.getElementById('form');
-    form.innerHTML = '';
-    updateProgress(questions);
-  
-    questions.forEach(q => {
-      const box = document.createElement('div');
-      box.className = 'py-6 border-b border-rose-100/80';
-  
-      const title = document.createElement('div');
-  
-      // ★Q1だけ「つぶやき」っぽく：Q番号を主張しない・少し小さめ・余白広め・少し左寄り
-      if(q.order === 1){
-        title.className = 'font-medium mb-5 text-slate-700 text-lg sm:text-xl text-left leading-relaxed';
-        title.innerHTML = `
-          <span class="inline-flex items-center gap-2">
-            <span class="text-slate-400">🌱</span>
-            <span class="text-slate-500 text-sm sm:text-base">はじめにひとつだけ</span>
-          </span>
-          <div class="mt-2">
-            <span class="text-slate-400 text-sm mr-1">Q${q.order}.</span>
-            <span>${q.questionText}</span>
-          </div>
-        `;
-      }else{
-        // 既存：質問は少し大きく＆中央寄り
+      const form = document.getElementById('form');
+      form.innerHTML = '';
+      updateProgress(questions);
+
+      questions.forEach(q => {
+        const box = document.createElement('div');
+        box.className = 'py-6 border-b border-rose-100/80';
+
+        const title = document.createElement('div');
+        // 質問：少し大きく＋中央より
         title.className = 'font-semibold mb-4 text-slate-800 text-xl sm:text-2xl text-center';
         title.textContent = `Q${q.order}. ${q.questionText}`;
-      }
-  
-      const choices = document.createElement('div');
-      choices.className = 'flex gap-3 flex-col sm:flex-row';
-  
-      (q.choices || []).forEach((c, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = c.text;
-  
-        // ★Q1だけ：選ぶ“決断感”を減らす（より白い・影なし・変化はじわっと）
-        if(q.order === 1){
-          btn.className =
-            'flex-1 px-4 py-3 rounded-2xl border border-rose-200/60 bg-white/90 ' +
-            'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 ' +
-            'transition duration-150 hover:bg-rose-50 hover:border-rose-200';
-        }else{
-          // 既存：ピンク系、文字は中央寄り＆少し大きく
+
+        const choices = document.createElement('div');
+        choices.className = 'flex gap-3 flex-col sm:flex-row';
+
+        (q.choices || []).forEach((c, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = c.text;
+
+          // 回答ボタン：ピンク系、文字は中央寄り＆少し大きく
           btn.className =
             'flex-1 px-4 py-3 rounded-2xl border border-rose-200/80 bg-white/80 ' +
             'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 shadow-sm ' +
             'hover:border-rose-300 hover:bg-rose-50 transition';
-        }
-  
-        btn.onclick = () => {
-          [...choices.children].forEach(b => {
-            b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md','scale-[1.02]');
-            // Q1は影を使わないので、戻しも控えめ
-            if(q.order === 1){
-              b.classList.add('bg-white/90','text-slate-800');
-            }else{
-              b.classList.add('bg-white/80','text-slate-800');
-            }
-          });
-  
-          // ★選択時：Q1は“じわっと”、Q2以降は通常の強調
-          btn.classList.remove('bg-white/90','bg-white/80','text-slate-800');
-          btn.classList.add('bg-[#e38fac]','text-white','border-transparent');
-          if(q.order !== 1) btn.classList.add('shadow-md');
-          btn.classList.add('scale-[1.02]'); // ほんの少しだけ達成感
-  
-          form.dataset[q.qId] = idx; // 0 or 1
-          updateProgress(questions);
-        };
-  
-        choices.appendChild(btn);
-      });
-  
-      box.appendChild(title);
-      box.appendChild(choices);
-      form.appendChild(box);
-    });
-  }
 
+          btn.onclick = () => {
+            [...choices.children].forEach(b => {
+              b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+              b.classList.add('bg-white/80','text-slate-800');
+            });
+
+            btn.classList.remove('bg-white/80','text-slate-800');
+            btn.classList.add('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+
+            form.dataset[q.qId] = idx; // 0 or 1
+            updateProgress(questions);
+          };
+
+          choices.appendChild(btn);
+        });
+
+        box.appendChild(title);
+        box.appendChild(choices);
+        form.appendChild(box);
+      });
+    }
 
     async function submitAnswers(questions){
       const form = document.getElementById('form');
