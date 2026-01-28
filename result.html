@@ -8,7 +8,6 @@
   <script src="./config.js"></script>
 </head>
 
-<!-- ★ a.html と同じ背景 -->
 <body class="bg-[#f5f3ef] text-slate-800">
   <div class="max-w-4xl mx-auto p-6">
     <!-- Tailwind の動的クラス生成対策（safelist用） -->
@@ -35,7 +34,6 @@
         <span>メール送信に同意します</span>
       </label>
       <div class="flex items-center gap-2 mt-3">
-        <!-- ★送信ボタンをピンクに -->
         <button id="sendBtn"
           class="px-5 py-2 rounded-2xl bg-[#eaa5bb] text-white font-semibold transition
                  hover:bg-[#e38fac] disabled:opacity-40 disabled:cursor-not-allowed">
@@ -84,14 +82,13 @@
     return 'bg-slate-400/80';
   }
 
-  // ★選ばれた側の色（バー色に合わせる）
   function traitTextColorClass(title){
     const key = (title || '').trim();
-    if(key.includes('距離')) return 'text-amber-600';
-    if(key.includes('コミュニケーション')) return 'text-slate-600';
-    if(key.includes('推進')) return 'text-emerald-600';
-    if(key.includes('思考')) return 'text-rose-600';
-    return 'text-slate-600';
+    if(key.includes('距離')) return 'text-amber-700';
+    if(key.includes('コミュニケーション')) return 'text-slate-700';
+    if(key.includes('推進')) return 'text-emerald-700';
+    if(key.includes('思考')) return 'text-rose-700';
+    return 'text-slate-700';
   }
 
   function readQuery(){
@@ -105,8 +102,10 @@
     try { return JSON.parse(raw); } catch(e){ return null; }
   }
 
-  // ★性格特性：～型は使わない／該当語を太字・大きく・バー色に合わせて表示
-  // ★バーは該当側から伸びる（左優勢なら左→右、右優勢なら右→左）
+  // ===== 性格特性（要件反映） =====
+  // ・「放任」「密接」等の左右ラベルのうち、該当側を大きく太字＋バー色に合わせて表示
+  // ・上部に「型」などの表示はしない
+  // ・バーは該当側から伸びる（左優勢→左から、右優勢→右から）
   function renderTraits(traits){
     if(!Array.isArray(traits) || traits.length === 0){
       return `<div class="text-slate-500 mt-1">（データなし）</div>`;
@@ -115,24 +114,30 @@
     return traits.map(t => {
       const pLeft = Math.max(0, Math.min(100, Number(t.percentLeft ?? 50)));
       const isLeft = (pLeft >= 50);
-      const chosen = isLeft ? (t.left || '') : (t.right || '');
       const amount = isLeft ? pLeft : (100 - pLeft);
 
       const barClass = traitColorClass(t.title);
-      const textClass = traitTextColorClass(t.title);
+      const hiTextClass = traitTextColorClass(t.title);
+
+      const leftLabel = escapeHtml(t.left || '');
+      const rightLabel = escapeHtml(t.right || '');
+
+      const leftCls = isLeft
+        ? `text-xl md:text-2xl font-extrabold ${hiTextClass}`
+        : `text-sm md:text-base font-medium text-slate-400`;
+
+      const rightCls = !isLeft
+        ? `text-xl md:text-2xl font-extrabold ${hiTextClass}`
+        : `text-sm md:text-base font-medium text-slate-400`;
 
       return `
         <div class="rounded-2xl border border-rose-100/80 bg-white/80 p-4">
-          <div class="flex items-end justify-between gap-3">
-            <div class="text-sm font-medium text-slate-600">${escapeHtml(t.title)}</div>
-            <div class="font-extrabold ${textClass} text-xl md:text-2xl leading-none">
-              ${escapeHtml(chosen)}
-            </div>
-          </div>
+          <div class="text-sm font-medium text-slate-600">${escapeHtml(t.title)}</div>
 
-          <div class="flex justify-between text-xs text-slate-400 mt-2">
-            <div>${escapeHtml(t.left)}</div>
-            <div>${escapeHtml(t.right)}</div>
+          <!-- ★ここで左右ラベルを表示：該当側を強調 -->
+          <div class="mt-2 flex items-end justify-between gap-3">
+            <div class="${leftCls} leading-none">${leftLabel}</div>
+            <div class="${rightCls} leading-none">${rightLabel}</div>
           </div>
 
           <div class="w-full h-3 bg-rose-50 rounded-full mt-3 overflow-hidden">
@@ -231,12 +236,17 @@
       const typeCode = out.typeCode || '';
       const feature = out.report?.feature || '';
 
-      // ★配置：診断名（大・中央）→ typeCode（中央）→ イラスト（少し小さめ）→ feature
+      const strengths = out.report?.strengths || '';
+      const cautions  = out.report?.cautions  || '';
+      const advice    = out.report?.advice    || '';
+
+      // ★配置：診断名（中央・大）→ typeCode（中央）→ イラスト（やや小）→ feature（読みやすく＆大きめ）
       resultBox.innerHTML = `
         <section class="text-center">
-          <div class="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-800">
+          <div class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-800">
             ${escapeHtml(typeName)}
           </div>
+
           <div class="mt-2 text-base md:text-lg text-slate-600 font-semibold">
             ${escapeHtml(typeCode)}
           </div>
@@ -247,13 +257,15 @@
             </div>
           </div>
 
-          <div class="mt-5 text-slate-700 whitespace-pre-wrap leading-relaxed text-base md:text-lg">
+          <!-- ★feature最適化：横幅を絞り、文字を大きめに -->
+          <div class="mt-6 mx-auto max-w-2xl text-slate-700 whitespace-pre-wrap leading-relaxed text-lg md:text-xl">
             ${escapeHtml(feature)}
           </div>
         </section>
 
-        <section class="mt-9">
-          <div class="font-semibold text-lg text-slate-800 flex items-center justify-center gap-2">
+        <section class="mt-10">
+          <!-- ★「性格特性」は左寄せ -->
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
             <span class="text-lg">📊</span>性格特性
           </div>
           <div class="mt-4 grid gap-3 md:grid-cols-2">
@@ -261,14 +273,33 @@
           </div>
         </section>
 
-        <!-- ★関連リンクは削除。参考リンクは「16タイプ一覧」へ -->
-        <section class="mt-9 text-center">
-          <div class="text-sm text-slate-600">参考リンク</div>
-          <div class="mt-2">
-            <a class="inline-block px-4 py-2 rounded-2xl bg-white/80 border border-rose-200/70 underline text-slate-700 hover:bg-white"
-               href="./types.html">
-              16タイプ一覧
-            </a>
+        <!-- ★強み／注意点／ワンポイントアドバイスは残す -->
+        <section class="mt-10 grid gap-5">
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">✨</span>強み
+            </div>
+            <div class="text-slate-700 text-base md:text-lg whitespace-pre-wrap mt-2 leading-relaxed">
+              ${escapeHtml(strengths)}
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">🌿</span>注意点
+            </div>
+            <div class="text-slate-700 text-base md:text-lg whitespace-pre-wrap mt-2 leading-relaxed">
+              ${escapeHtml(cautions)}
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">💡</span>ワンポイントアドバイス
+            </div>
+            <div class="text-slate-700 text-base md:text-lg whitespace-pre-wrap mt-2 leading-relaxed">
+              ${escapeHtml(advice)}
+            </div>
           </div>
         </section>
       `;
