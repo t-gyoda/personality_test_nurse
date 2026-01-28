@@ -15,13 +15,9 @@
   <div class="relative">
     <div class="max-w-3xl mx-auto p-6">
 
-      <!-- トップバー -->
+      <!-- トップバー（左上ピルは削除。右のトップへだけ残す） -->
       <div class="mb-5">
-        <div class="flex items-center justify-between text-sm text-slate-500">
-          <div class="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 font-semibold text-slate-700 shadow-sm border border-rose-100">
-            <span>🌷</span>
-            <span>看護師タイプ診断</span>
-          </div>
+        <div class="flex items-center justify-end text-sm text-slate-500">
           <a href="./index.html" class="font-semibold text-slate-500 hover:text-slate-700">トップへ</a>
         </div>
       </div>
@@ -36,22 +32,34 @@
         </div>
       </div>
 
-      <!-- タイトル＋説明（枠で囲い、かわいさ＋落ち着き） -->
+     <!-- タイトル＋説明（半分囲い：上＋左右のみ / 下は開ける） -->
       <div class="mt-6 mb-7">
-        <div class="rounded-3xl border border-rose-200/70 bg-white/70 shadow-sm px-6 py-6">
-          <div class="absolute opacity-0 pointer-events-none select-none">.</div>
-          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-center text-slate-800 leading-tight">
-            看護師タイプ診断<br class="hidden sm:block" />
-            <span class="sm:hidden"> </span>
-            <span class="text-rose-500">病院を支える管理職向け</span>
-          </h1>
-
-          <!-- タイトルと説明文の間隔をしっかり -->
-          <p class="text-base sm:text-lg text-slate-600 mt-4 text-center">
-            あなたの現場とのかかわり方を見える化。
-          </p>
-
-          <!-- ほんのり楽しい装飾 -->
+        <div class="relative">
+          <!-- 半分囲いカード -->
+          <div class="rounded-3xl bg-white/75 shadow-sm px-6 py-7
+                      border border-rose-200/70 border-b-0">
+            <h1 class="text-center leading-tight">
+              <!-- 1行目（同色） -->
+              <div class="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800">
+                看護師タイプ診断～
+              </div>
+              <!-- 2行目（同色・少し小さめ） -->
+              <div class="mt-1 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-800">
+                病院を支える管理職向け～
+              </div>
+            </h1>
+      
+            <!-- タイトルと説明文はスペースを空ける -->
+            <p class="text-base sm:text-lg text-slate-600 mt-5 text-center">
+              あなたの現場とのかかわり方を見える化。
+            </p>
+          </div>
+      
+          <!-- 下側の“開き”をかわいく（開いているのに途切れて見えない工夫） -->
+          <div class="h-4"></div>
+          <div class="mx-6 -mt-2 h-1 rounded-full bg-rose-200/70"></div>
+      
+          <!-- ほんのり楽しい装飾（任意：残してOK） -->
           <div class="mt-5 flex justify-center">
             <div class="h-2 w-24 rounded-full bg-gradient-to-r from-rose-200 via-pink-200 to-rose-100"></div>
           </div>
