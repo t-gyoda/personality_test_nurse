@@ -104,3 +104,23 @@
     if(key.includes('コミュニケーション')) return 'text-slate-700';
     if(key.includes('推進')) return 'text-emerald-700';
     if(key.includes('思考')) return 'text-ros
+
+
+  <script>
+  // ① JSがそもそも動いているかを表示
+  document.addEventListener('DOMContentLoaded', () => {
+    const msg = document.getElementById('msg');
+    if (msg) msg.textContent = 'JS起動OK（ここが出れば script は実行されています）';
+  });
+
+  // ② どんなエラーでも画面に出す
+  window.addEventListener('error', (e) => {
+    const msg = document.getElementById('msg');
+    if (msg) msg.textContent = 'JSエラー：' + (e.message || e.error || 'unknown');
+  });
+
+  window.addEventListener('unhandledrejection', (e) => {
+    const msg = document.getElementById('msg');
+    if (msg) msg.textContent = 'Promiseエラー：' + (e.reason?.message || e.reason || 'unknown');
+  });
+</script>
