@@ -58,12 +58,11 @@
     </div>
   </div>
 
-<script>
-  // ===== 共通 =====
-  function GAS_URL(){
-    const u = window.APP_CONFIG && window.APP_CONFIG.GAS_URL;
-    if(!u) throw new Error('APP_CONFIG.GAS_URL が見つかりません（config.js を確認）');
-    return u;
+<script id="main">
+  // 画面表示用（必ず msg を更新する）
+  function setMsg(text){
+    const m = document.getElementById('msg');
+    if(m) m.textContent = text;
   }
 
   function escapeHtml(s){
@@ -71,24 +70,18 @@
       '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     }[m]));
   }
-
-  // 先頭改行などで段落が下がるのを防ぐ
-  function cleanText(s){
-    return escapeHtml((s || '').trim());
-  }
+  function cleanText(s){ return escapeHtml((s || '').trim()); }
 
   function readQuery(){
     const p = new URLSearchParams(location.search);
     return { diagnosisId: p.get('diagnosisId') || '' };
   }
-
   function loadResultFromSession(){
     const raw = sessionStorage.getItem('LAST_RESULT_JSON');
     if(!raw) return null;
     try { return JSON.parse(raw); } catch(e){ return null; }
   }
 
-  // ===== 性格特性（色） =====
   function traitColorClass(title){
     const key = (title || '').trim();
     if(key.includes('距離')) return 'bg-amber-400/80';
@@ -97,36 +90,149 @@
     if(key.includes('思考')) return 'bg-rose-400/80';
     return 'bg-slate-400/80';
   }
-
   function traitTextColorClass(title){
     const key = (title || '').trim();
     if(key.includes('距離')) return 'text-amber-700';
     if(key.includes('コミュニケーション')) return 'text-slate-700';
     if(key.includes('推進')) return 'text-emerald-700';
-    if(key.includes('思考')) return 'text-ros
+    if(key.includes('思考')) return 'text-rose-700';
+    return 'text-slate-700';
+  }
 
+  function renderTraits(traits){
+    if(!Array.isArray(traits) || traits.length === 0){
+      return `<div class="text-slate-500 mt-1">（データなし）</div>`;
+    }
+    return traits.map(t => {
+      const pLeft = Math.max(0, Math.min(100, Number(t.percentLeft ?? 50)));
+      const isLeft = (pLeft >= 50);
+      const amount = isLeft ? pLeft : (100 - pLeft);
 
-  <!-- ここまでがあなたの既存の最後の</script>（メイン処理） -->
+      const barClass = traitColorClass(t.title);
+      const hiTextClass = traitTextColorClass(t.title);
 
-  <!-- ★デバッグscript：この直後に置く -->
-  <script>
-    // ① JSがそもそも動いているかを表示
-    document.addEventListener('DOMContentLoaded', () => {
-      const msg = document.getElementById('msg');
-      if (msg) msg.textContent = 'JS起動OK（ここが出れば script は実行されています）';
-    });
+      const leftCls = isLeft
+        ? `text-xl md:text-2xl font-extrabold ${hiTextClass}`
+        : `text-sm md:text-base font-medium text-slate-400`;
 
-    // ② どんなエラーでも画面に出す
-    window.addEventListener('error', (e) => {
-      const msg = document.getElementById('msg');
-      if (msg) msg.textContent = 'JSエラー：' + (e.message || e.error || 'unknown');
-    });
+      const rightCls = !isLeft
+        ? `text-xl md:text-2xl font-extrabold ${hiTextClass}`
+        : `text-sm md:text-base font-medium text-slate-400`;
 
-    window.addEventListener('unhandledrejection', (e) => {
-      const msg = document.getElementById('msg');
-      if (msg) msg.textContent = 'Promiseエラー：' + (e.reason?.message || e.reason || 'unknown');
-    });
-  </script>
+      return `
+        <div class="rounded-2xl border border-rose-100/80 bg-white/80 p-4">
+          <div class="text-sm font-medium text-slate-600">${escapeHtml(t.title)}</div>
+          <div class="mt-2 flex items-end justify-between gap-3">
+            <div class="${leftCls} leading-none">${escapeHtml(t.left || '')}</div>
+            <div class="${rightCls} leading-none">${escapeHtml(t.right || '')}</div>
+          </div>
+          <div class="w-full h-3 bg-rose-50 rounded-full mt-3 overflow-hidden">
+            <div class="h-3 ${barClass}"
+              style="width:${amount}%; ${isLeft ? 'margin-left:0; margin-right:auto;' : 'margin-left:auto; margin-right:0;'}">
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    try{
+      setMsg('結果データを確認中…');
+
+      const resultBox = document.getElementById('resultBox');
+      const mailBox = document.getElementById('mailBox');
+      const back = document.getElementById('backLink');
+      const q = readQuery();
+
+      // 戻るリンク
+      if(q.diagnosisId === 'A') back.href = './a.html';
+      else if(q.diagnosisId === 'B') back.href = './b.html';
+
+      const out = loadResultFromSession();
+      if(!out){
+        setMsg('結果データが見つかりませんでした。診断ページからもう一度「診断する」を押して結果画面へ進んでください。');
+        return;
+      }
+
+      // mail欄表示
+      if(mailBox) mailBox.classList.remove('hidden');
+
+      const r = out.report || {};
+      const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
+      const typeCode = out.typeCode || '';
+
+      const feature  = r.feature || '';
+      const strengths = r.strengths || '';
+      const cautions  = r.cautions  || '';
+      const advice    = r.advice    || '';
+
+      resultBox.innerHTML = `
+        <section class="text-center mt-12">
+          <div class="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-800">
+            ${escapeHtml(typeName)}
+          </div>
+          <div class="mt-3 text-base md:text-lg text-slate-600 font-semibold">
+            ${escapeHtml(typeCode)}
+          </div>
+
+          <div class="mt-7 flex justify-center">
+            <div class="w-full max-w-xs aspect-square rounded-[26px] bg-white/80 border border-rose-200/60 flex items-center justify-center">
+              <div class="text-6xl">🩺</div>
+            </div>
+          </div>
+
+          <div class="mt-7 mx-auto max-w-2xl text-lg md:text-xl font-medium text-slate-700 whitespace-pre-wrap leading-relaxed">
+            ${cleanText(feature)}
+          </div>
+        </section>
+
+        <section class="mt-14">
+          <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+            <span class="text-lg">📊</span>性格特性
+          </div>
+          <div class="mt-4 grid gap-3 md:grid-cols-2">
+            ${renderTraits(out.traits)}
+          </div>
+        </section>
+
+        <section class="mt-12 grid gap-6">
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">✨</span>強み
+            </div>
+            <div class="mt-3 text-lg md:text-xl text-slate-700 whitespace-pre-wrap leading-relaxed">
+              ${cleanText(strengths)}
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">🌿</span>注意点
+            </div>
+            <div class="mt-3 text-lg md:text-xl text-slate-700 whitespace-pre-wrap leading-relaxed">
+              ${cleanText(cautions)}
+            </div>
+          </div>
+
+          <div class="rounded-2xl bg-white/80 border border-rose-200/60 p-5">
+            <div class="font-semibold text-lg text-slate-800 flex items-center gap-2">
+              <span class="text-lg">💡</span>ワンポイントアドバイス
+            </div>
+            <div class="mt-3 text-lg md:text-xl text-slate-700 whitespace-pre-wrap leading-relaxed">
+              ${cleanText(advice)}
+            </div>
+          </div>
+        </section>
+      `;
+
+    }catch(e){
+      console.error(e);
+      setMsg('エラー：' + (e?.message || e));
+    }
+  });
+</script>
+
 
 </body>
 </html>
