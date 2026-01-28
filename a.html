@@ -46,11 +46,11 @@
           <h1 class="text-center leading-tight text-slate-800 font-extrabold tracking-tight">
             <!-- 1行目 -->
             <div class="text-4xl sm:text-5xl">
-              看護師タイプ診断🌷
+              看護師タイプ診断～
             </div>
             <!-- 2行目：同色・少し小さめ・間隔を空ける -->
             <div class="mt-2 text-2xl sm:text-3xl">
-              ～病院を支える管理職向け～
+              病院を支える管理職向け～
             </div>
           </h1>
 
@@ -87,5 +87,172 @@
   </div>
 
   <!-- JS部分は変更なし -->
+</body>
+</html>
+
+
+  <script>
+    function GAS_URL(){
+      const u = window.APP_CONFIG && window.APP_CONFIG.GAS_URL;
+      if(!u) throw new Error('APP_CONFIG.GAS_URL が見つかりません（config.js を確認してください）');
+      return u;
+    }
+
+    function sid(){
+      const k = 'diag_sid';
+      let v = localStorage.getItem(k);
+      if(!v){
+        v = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+        localStorage.setItem(k, v);
+      }
+      return v;
+    }
+
+    async function loadQuestions(){
+      const url = `${GAS_URL()}?path=questions&diagnosisId=A`;
+      const r = await fetch(url);
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || '質問取得に失敗しました');
+      return j.questions;
+    }
+
+    function setSubmitEnabled(questions){
+      const form = document.getElementById('form');
+      const btn = document.getElementById('submitBtn');
+      const total = questions.length;
+      const answered = Object.keys(form.dataset || {}).length;
+      const allAnswered = (total > 0 && answered === total);
+
+      btn.disabled = !allAnswered;
+      // 「全回答まで薄い」＋ hoverも抑制（disabledクラスで対応済み）
+    }
+
+    function updateProgress(questions){
+      const form = document.getElementById('form');
+      const total = questions.length;
+      const answered = Object.keys(form.dataset || {}).length;
+      const ratio = total ? Math.round((answered / total) * 100) : 0;
+
+      const progressText = document.getElementById('progressText');
+      const progressBar = document.getElementById('progressBar');
+
+      if(progressText) progressText.textContent = `${answered} / ${total}`;
+      if(progressBar) progressBar.style.width = `${ratio}%`;
+
+      setSubmitEnabled(questions);
+    }
+
+    function renderQuestions(questions){
+      const form = document.getElementById('form');
+      form.innerHTML = '';
+      updateProgress(questions);
+
+      questions.forEach(q => {
+        const box = document.createElement('div');
+        box.className = 'py-6 border-b border-rose-100/80';
+
+        const title = document.createElement('div');
+        // 質問：少し大きく＋中央より
+        title.className = 'font-semibold mb-4 text-slate-800 text-xl sm:text-2xl text-center';
+        title.textContent = `Q${q.order}. ${q.questionText}`;
+
+        const choices = document.createElement('div');
+        choices.className = 'flex gap-3 flex-col sm:flex-row';
+
+        (q.choices || []).forEach((c, idx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.textContent = c.text;
+
+          // 回答ボタン：ピンク系、文字は中央寄り＆少し大きく
+          btn.className =
+            'flex-1 px-4 py-3 rounded-2xl border border-rose-200/80 bg-white/80 ' +
+            'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 shadow-sm ' +
+            'hover:border-rose-300 hover:bg-rose-50 transition';
+
+          btn.onclick = () => {
+            [...choices.children].forEach(b => {
+              b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+              b.classList.add('bg-white/80','text-slate-800');
+            });
+
+            btn.classList.remove('bg-white/80','text-slate-800');
+            btn.classList.add('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+
+            form.dataset[q.qId] = idx; // 0 or 1
+            updateProgress(questions);
+          };
+
+          choices.appendChild(btn);
+        });
+
+        box.appendChild(title);
+        box.appendChild(choices);
+        form.appendChild(box);
+      });
+    }
+
+    async function submitAnswers(questions){
+      const form = document.getElementById('form');
+      const answers = {};
+
+      for(const q of questions){
+        const v = form.dataset[q.qId];
+        if(v === undefined){
+          alert(`未回答の質問があります（Q${q.order}）`);
+          throw new Error('未回答');
+        }
+        answers[q.qId] = Number(v);
+      }
+
+      const payload = {
+        path: 'submit',
+        diagnosisId: 'A',
+        sessionId: sid(),
+        answers,
+        email: '',
+        ua: navigator.userAgent
+      };
+
+      const r = await fetch(GAS_URL(), {
+        method: 'POST',
+        headers: { 'Content-Type':'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || '診断に失敗しました');
+
+      sessionStorage.setItem('LAST_RESULT_JSON', JSON.stringify(j));
+      location.href = './result.html?diagnosisId=A';
+    }
+
+    (async function main(){
+      try{
+        const questions = await loadQuestions();
+
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('form').classList.remove('hidden');
+        document.getElementById('submitBtn').classList.remove('hidden');
+
+        renderQuestions(questions);
+
+        const submitBtn = document.getElementById('submitBtn');
+        // 初期は薄い（disabled）にしたいので、ここで必ず反映
+        submitBtn.disabled = true;
+        setSubmitEnabled(questions);
+
+        submitBtn.onclick = async () => {
+          if(submitBtn.disabled) return; // 全回答前は押せない
+          submitBtn.textContent = '診断中…';
+          submitBtn.disabled = true;
+          await submitAnswers(questions);
+        };
+
+      }catch(e){
+        document.getElementById('loading').textContent = 'エラー：' + e.message;
+      }
+    })();
+  </script>
 </body>
 </html>
