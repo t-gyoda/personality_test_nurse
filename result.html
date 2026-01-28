@@ -106,21 +106,28 @@
     if(key.includes('思考')) return 'text-ros
 
 
+  <!-- ここまでがあなたの既存の最後の</script>（メイン処理） -->
+
+  <!-- ★デバッグscript：この直後に置く -->
   <script>
-  // ① JSがそもそも動いているかを表示
-  document.addEventListener('DOMContentLoaded', () => {
-    const msg = document.getElementById('msg');
-    if (msg) msg.textContent = 'JS起動OK（ここが出れば script は実行されています）';
-  });
+    // ① JSがそもそも動いているかを表示
+    document.addEventListener('DOMContentLoaded', () => {
+      const msg = document.getElementById('msg');
+      if (msg) msg.textContent = 'JS起動OK（ここが出れば script は実行されています）';
+    });
 
-  // ② どんなエラーでも画面に出す
-  window.addEventListener('error', (e) => {
-    const msg = document.getElementById('msg');
-    if (msg) msg.textContent = 'JSエラー：' + (e.message || e.error || 'unknown');
-  });
+    // ② どんなエラーでも画面に出す
+    window.addEventListener('error', (e) => {
+      const msg = document.getElementById('msg');
+      if (msg) msg.textContent = 'JSエラー：' + (e.message || e.error || 'unknown');
+    });
 
-  window.addEventListener('unhandledrejection', (e) => {
-    const msg = document.getElementById('msg');
-    if (msg) msg.textContent = 'Promiseエラー：' + (e.reason?.message || e.reason || 'unknown');
-  });
-</script>
+    window.addEventListener('unhandledrejection', (e) => {
+      const msg = document.getElementById('msg');
+      if (msg) msg.textContent = 'Promiseエラー：' + (e.reason?.message || e.reason || 'unknown');
+    });
+  </script>
+
+</body>
+</html>
+
