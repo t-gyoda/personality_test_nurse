@@ -1,4 +1,4 @@
-<div class="text-xs text-gray-400">a.html version: 2025-12-31-1</div>
+<div class="text-xs text-gray-400">a.html version: 2026-01-28-1</div>
 
 <!doctype html>
 <html lang="ja">
@@ -11,47 +11,68 @@
   <script src="./config.js"></script>
 </head>
 
-<body class="bg-[#f6f3ef] text-slate-800 min-h-screen">
+<body class="bg-[#f6e9ee] text-slate-800 min-h-screen">
   <div class="relative">
     <div class="max-w-3xl mx-auto p-6">
-      <div class="mb-6">
+
+      <!-- トップバー -->
+      <div class="mb-5">
         <div class="flex items-center justify-between text-sm text-slate-500">
-          <div class="inline-flex items-center gap-2 rounded-full bg-[#fdfcf9] px-3 py-1 font-semibold text-slate-600 shadow-sm">
-            <span>💖</span>
+          <div class="inline-flex items-center gap-2 rounded-full bg-white/70 px-3 py-1 font-semibold text-slate-700 shadow-sm border border-rose-100">
+            <span>🌷</span>
             <span>看護師タイプ診断</span>
           </div>
           <a href="./index.html" class="font-semibold text-slate-500 hover:text-slate-700">トップへ</a>
         </div>
-        <h1 class="text-4xl font-bold tracking-tight text-center mt-4">看護師タイプ診断 ~病院を支える管理職向け~</h1>
-        <p class="text-base text-slate-500 mt-2 text-center">あなたの現場とのかかわり方を見える化。</p>
       </div>
 
-      <div class="mb-6 rounded-3xl bg-[#fdfcf9] p-5 shadow-sm border border-slate-200">
+      <!-- 進捗（固定表示：説明文なし / バー + 0/20のみ） -->
+      <div id="progressWrap" class="sticky top-0 z-20 -mx-6 px-6 pt-3 pb-3 bg-[#f6e9ee]/90 backdrop-blur border-b border-rose-100">
         <div class="flex items-center justify-between">
-          <div class="text-sm text-slate-500">進捗</div>
-          <div id="progressText" class="text-sm font-semibold text-slate-700">0 / 0</div>
+          <div class="h-2 w-full rounded-full bg-rose-100/80 overflow-hidden">
+            <div id="progressBar" class="h-2 rounded-full bg-[#e7a9bc]" style="width:0%"></div>
+          </div>
+          <div id="progressText" class="ml-3 shrink-0 text-sm font-semibold text-slate-700 tabular-nums">0 / 0</div>
         </div>
-        <div class="mt-2 h-2 w-full rounded-full bg-slate-200">
-          <div id="progressBar" class="h-2 rounded-full bg-[#c8b7a6]" style="width:0%"></div>
-        </div>
-        <p class="mt-3 text-xs text-slate-500">直感でサクサク答えてOK！</p>
       </div>
 
-      <div id="loading" class="text-gray-600">質問を読み込んでいます…</div>
+      <!-- タイトル＋説明（枠で囲い、かわいさ＋落ち着き） -->
+      <div class="mt-6 mb-7">
+        <div class="rounded-3xl border border-rose-200/70 bg-white/70 shadow-sm px-6 py-6">
+          <div class="absolute opacity-0 pointer-events-none select-none">.</div>
+          <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-center text-slate-800 leading-tight">
+            看護師タイプ診断<br class="hidden sm:block" />
+            <span class="sm:hidden"> </span>
+            <span class="text-rose-500">病院を支える管理職向け</span>
+          </h1>
+
+          <!-- タイトルと説明文の間隔をしっかり -->
+          <p class="text-base sm:text-lg text-slate-600 mt-4 text-center">
+            あなたの現場とのかかわり方を見える化。
+          </p>
+
+          <!-- ほんのり楽しい装飾 -->
+          <div class="mt-5 flex justify-center">
+            <div class="h-2 w-24 rounded-full bg-gradient-to-r from-rose-200 via-pink-200 to-rose-100"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="loading" class="text-slate-600">質問を読み込んでいます…</div>
 
       <form id="form" class="hidden space-y-6"></form>
 
       <div class="mt-8">
         <button id="submitBtn"
-          class="hidden w-full px-4 py-4 rounded-2xl bg-slate-800 text-white text-lg font-semibold shadow-sm hover:bg-slate-700 transition">
+          class="hidden w-full px-4 py-4 rounded-2xl bg-[#eaa5bb] text-white text-lg font-semibold shadow-sm transition
+                 hover:bg-[#e38fac] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-[#eaa5bb]">
           診断する
         </button>
-        <p class="mt-3 text-center text-xs text-slate-400">診断結果はすぐに表示されます。</p>
+        <p class="mt-3 text-center text-xs text-slate-500">診断結果はすぐに表示されます。</p>
       </div>
     </div>
   </div>
 
-  <!-- ★JavaScript は必ず script タグ内に入れる -->
   <script>
     function GAS_URL(){
       const u = window.APP_CONFIG && window.APP_CONFIG.GAS_URL;
@@ -77,15 +98,30 @@
       return j.questions;
     }
 
+    function setSubmitEnabled(questions){
+      const form = document.getElementById('form');
+      const btn = document.getElementById('submitBtn');
+      const total = questions.length;
+      const answered = Object.keys(form.dataset || {}).length;
+      const allAnswered = (total > 0 && answered === total);
+
+      btn.disabled = !allAnswered;
+      // 「全回答まで薄い」＋ hoverも抑制（disabledクラスで対応済み）
+    }
+
     function updateProgress(questions){
       const form = document.getElementById('form');
       const total = questions.length;
       const answered = Object.keys(form.dataset || {}).length;
       const ratio = total ? Math.round((answered / total) * 100) : 0;
+
       const progressText = document.getElementById('progressText');
       const progressBar = document.getElementById('progressBar');
+
       if(progressText) progressText.textContent = `${answered} / ${total}`;
       if(progressBar) progressBar.style.width = `${ratio}%`;
+
+      setSubmitEnabled(questions);
     }
 
     function renderQuestions(questions){
@@ -95,10 +131,11 @@
 
       questions.forEach(q => {
         const box = document.createElement('div');
-        box.className = 'py-5 border-b border-slate-200';
+        box.className = 'py-6 border-b border-rose-100/80';
 
         const title = document.createElement('div');
-        title.className = 'font-semibold mb-4 text-slate-700 text-xl';
+        // 質問：少し大きく＋中央より
+        title.className = 'font-semibold mb-4 text-slate-800 text-xl sm:text-2xl text-center';
         title.textContent = `Q${q.order}. ${q.questionText}`;
 
         const choices = document.createElement('div');
@@ -108,13 +145,22 @@
           const btn = document.createElement('button');
           btn.type = 'button';
           btn.textContent = c.text;
-          btn.className = 'flex-1 px-4 py-3 rounded-2xl border border-slate-200 bg-white text-left whitespace-normal leading-relaxed text-base text-slate-700 shadow-sm hover:border-slate-300 hover:bg-[#fdfcf9] transition';
+
+          // 回答ボタン：ピンク系、文字は中央寄り＆少し大きく
+          btn.className =
+            'flex-1 px-4 py-3 rounded-2xl border border-rose-200/80 bg-white/80 ' +
+            'text-center whitespace-normal leading-relaxed text-base sm:text-lg text-slate-800 shadow-sm ' +
+            'hover:border-rose-300 hover:bg-rose-50 transition';
 
           btn.onclick = () => {
             [...choices.children].forEach(b => {
-              b.classList.remove('bg-slate-700','text-white','border-transparent','shadow-md');
+              b.classList.remove('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+              b.classList.add('bg-white/80','text-slate-800');
             });
-            btn.classList.add('bg-slate-700','text-white','border-transparent','shadow-md');
+
+            btn.classList.remove('bg-white/80','text-slate-800');
+            btn.classList.add('bg-[#e38fac]','text-white','border-transparent','shadow-md');
+
             form.dataset[q.qId] = idx; // 0 or 1
             updateProgress(questions);
           };
@@ -173,10 +219,15 @@
 
         renderQuestions(questions);
 
-        document.getElementById('submitBtn').onclick = async () => {
-          const btn = document.getElementById('submitBtn');
-          btn.textContent = '診断中…';
-          btn.disabled = true;
+        const submitBtn = document.getElementById('submitBtn');
+        // 初期は薄い（disabled）にしたいので、ここで必ず反映
+        submitBtn.disabled = true;
+        setSubmitEnabled(questions);
+
+        submitBtn.onclick = async () => {
+          if(submitBtn.disabled) return; // 全回答前は押せない
+          submitBtn.textContent = '診断中…';
+          submitBtn.disabled = true;
           await submitAnswers(questions);
         };
 
