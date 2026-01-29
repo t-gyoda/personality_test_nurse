@@ -105,7 +105,7 @@
     }
 
     async function loadQuestions(){
-      const url = `${GAS_URL()}?path=questions&diagnosisId=N`;
+      const url = `${GAS_URL()}?path=questions&diagnosisId=B`;
       const r = await fetch(url);
       const j = await r.json();
       if(!j.ok) throw new Error(j.error || '質問取得に失敗しました');
@@ -196,7 +196,7 @@
 
       const payload = {
         path: 'submit',
-        diagnosisId: 'N',
+        diagnosisId: 'B',
         sessionId: sid(),
         answers,
         email: '',
@@ -213,7 +213,7 @@
       if(!j.ok) throw new Error(j.error || '診断に失敗しました');
 
       sessionStorage.setItem('LAST_RESULT_JSON', JSON.stringify(j));
-      location.href = './result.html?diagnosisId=N';
+      location.href = './result.html?diagnosisId=B';
     }
 
     (async function main(){
