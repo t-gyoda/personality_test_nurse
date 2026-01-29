@@ -136,6 +136,10 @@
     }).join('');
   }
 
+  function getTypeImageById(typeID){
+  if(!typeID) return './illustrations/default.png';
+  return `./illustrations/${typeID}.png`;
+}
   document.addEventListener('DOMContentLoaded', () => {
     try{
       setMsg('結果データを確認中…');
@@ -161,6 +165,9 @@
       const r = out.report || {};
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
       const typeCode = out.typeCode || '';
+      const typeID = r.typeID || '';
+      const imgSrc = getTypeImageById(typeID);
+
 
       const feature  = r.feature || '';
       const strengths = r.strengths || '';
@@ -178,7 +185,12 @@
 
           <div class="mt-7 flex justify-center">
             <div class="w-full max-w-xs aspect-square rounded-[26px] bg-white/80 border border-rose-200/60 flex items-center justify-center">
-              <div class="text-6xl">🩺</div>
+              <img
+                src="${imgSrc}"
+                alt="${escapeHtml(typeName)} のイラスト"
+                class="w-full h-full object-contain"
+                onerror="this.src='./illustrations/default.png'"
+              />
             </div>
           </div>
 
