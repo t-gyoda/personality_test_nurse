@@ -7,71 +7,152 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="./config.js"></script>
 </head>
-<body class="bg-gray-50">
-  <div class="max-w-3xl mx-auto p-6">
 
-    <h1 class="text-3xl font-bold mb-4">
-      看護師向け 16パーソナリティ診断
-    </h1>
-    <p class="text-gray-600 mb-6">
-      管理者・現場それぞれの関わり方を、16タイプで可視化します。
-    </p>
+<body class="min-h-screen bg-[#fbfaf8] text-slate-800">
+  <!-- 背景：ほんのりピンク×グリーンの超うっすらグラデ＋うっすら粒 -->
+  <div class="fixed inset-0 -z-10">
+    <div class="absolute inset-0 bg-gradient-to-br from-rose-100/40 via-white to-emerald-100/35"></div>
+    <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-rose-50/20 to-transparent"></div>
+    <!-- うっすら粒（可愛さを足す） -->
+    <div class="absolute inset-0 opacity-[0.12]"
+      style="background-image:
+        radial-gradient(circle at 12% 18%, rgba(244,114,182,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at 82% 22%, rgba(16,185,129,.35) 0 2px, transparent 3px),
+        radial-gradient(circle at 18% 78%, rgba(59,130,246,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 78% 76%, rgba(245,158,11,.25) 0 2px, transparent 3px),
+        radial-gradient(circle at 52% 40%, rgba(148,163,184,.25) 0 2px, transparent 3px);
+      background-size: 260px 260px;"></div>
+  </div>
 
+  <div class="max-w-4xl mx-auto px-6 py-10">
+    <!-- ヘッダー -->
+    <header class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+        看護師向け 16パーソナリティ診断
+      </h1>
+      <p class="text-slate-600 mt-3">
+        あなたの働き方スタイルを診断します。
+      </p>
+      <!-- うっすらアクセントライン -->
+      <div class="mt-5 flex justify-center">
+        <div class="h-1 w-20 rounded-full bg-gradient-to-r from-rose-300/70 to-rose-200/40"></div>
+      </div>
+    </header>
+
+    <!-- カード群 -->
     <div class="grid gap-6">
 
-      <!-- 診断A -->
-      <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">管理者の関わり方を16タイプで</div>
-        <h2 class="text-xl font-semibold mb-2">
-          🩺 看護師管理者向け 16パーソナリティ診断
-        </h2>
-        <p class="text-gray-600 mb-4">
-          マネジメントの距離感・伝え方・進め方・判断傾向から、
-          あなたのスタイルを16タイプで整理します。
-        </p>
-        <a href="./a.html"
-           class="block text-center px-4 py-3 rounded-xl bg-black text-white text-lg">
-          診断Aをはじめる
-        </a>
-      </div>
+      <!-- 診断A：横長カード（左にアイコン・右にボタン） -->
+      <section class="bg-white/80 backdrop-blur rounded-3xl border border-rose-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+          <!-- アイコン -->
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-2xl">
+            🩺
+          </div>
 
-      <!-- 診断B -->
-      <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">現場の働き方を16タイプで</div>
-        <h2 class="text-xl font-semibold mb-2">
-          🌱 看護師向け 16パーソナリティ診断
-        </h2>
-        <p class="text-gray-600 mb-4">
-          現場での動き方・コミュニケーションの傾向を
-          16タイプで可視化します。
-        </p>
-        <a href="./b.html"
-           class="block text-center px-4 py-3 rounded-xl bg-emerald-600 text-white text-lg">
-          診断Bをはじめる
-        </a>
-      </div>
+          <!-- テキスト -->
+          <div class="min-w-0 flex-1">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">
+              看護師管理者向け 16タイプ診断
+            </h2>
+            <p class="text-slate-600 leading-relaxed">
+              看護現場でのあなたのマネジメントスタイルを、距離感・伝え方・進め方・判断の観点から、16タイプで分析します。
+            </p>
+          </div>
 
-      <!-- 相性診断 -->
-      <div class="bg-white rounded-2xl shadow p-6">
-        <div class="text-sm text-gray-500 mb-1">関係性サポート</div>
-        <h2 class="text-xl font-semibold mb-2">
-          🤝 関係性サポート診断
-        </h2>
-        <p class="text-gray-600 mb-4">
-          管理者×現場のタイプから、
-          よりよい関わり方のヒントを提供します。
-        </p>
-        <a href="./compat.html"
-           class="block text-center px-4 py-3 rounded-xl bg-gray-800 text-white text-lg">
-          相性診断を見る
-        </a>
-      </div>
+          <!-- CTA -->
+          <a href="./a.html"
+             class="shrink-0 inline-flex justify-center items-center px-6 py-3 rounded-2xl text-white text-lg font-semibold
+                    bg-gradient-to-r from-rose-400 to-rose-500 shadow-[0_10px_20px_rgba(244,114,182,0.25)]
+                    hover:opacity-95 active:opacity-90 transition">
+            管理者診断を始める
+          </a>
+        </div>
+      </section>
 
+      <!-- 診断B：横長カード（左にアイコン・右にボタン） -->
+      <section class="bg-white/80 backdrop-blur rounded-3xl border border-emerald-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
+          <!-- アイコン -->
+          <div class="shrink-0 w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-2xl">
+            🌱
+          </div>
+
+          <!-- テキスト -->
+          <div class="min-w-0 flex-1">
+            <div class="text-sm text-slate-500 mb-1">現場の働き方を16タイプで</div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">
+              看護師向け 16タイプ診断
+            </h2>
+            <p class="text-slate-600 leading-relaxed">
+              現場での動き方・コミュニケーションの傾向を16タイプで可視化します。
+            </p>
+          </div>
+
+          <!-- CTA -->
+          <a href="./b.html"
+             class="shrink-0 inline-flex justify-center items-center px-6 py-3 rounded-2xl text-white text-lg font-semibold
+                    bg-emerald-600 shadow-[0_10px_20px_rgba(16,185,129,0.20)]
+                    hover:bg-emerald-700 active:bg-emerald-800 transition">
+            看護師診断を始める
+          </a>
+        </div>
+      </section>
+
+      <!-- 下段：2カラム（相性診断 / 16タイプ一覧） -->
+      <div class="grid sm:grid-cols-2 gap-6">
+
+        <!-- 相性診断 -->
+        <section class="bg-white/80 backdrop-blur rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+          <div class="flex items-start gap-4 mb-3">
+            <div class="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl">
+              🤝
+            </div>
+            <div>
+              <div class="text-sm text-slate-500 mb-1">関係性サポート</div>
+              <h2 class="text-xl font-bold text-slate-900">
+                関係性サポート診断
+              </h2>
+            </div>
+          </div>
+
+          <p class="text-slate-600 leading-relaxed mb-5">
+            管理者×現場のタイプから、
+            よりよい関わり方のヒントを提供します。
+          </p>
+
+          <a href="./compat.html"
+             class="block text-center px-4 py-3 rounded-2xl bg-slate-800 text-white text-lg font-semibold
+                    hover:bg-slate-900 active:bg-black transition">
+            相性診断を見る
+          </a>
+        </section>
+
+        <!-- 16タイプ一覧 -->
+        <section class="bg-white/80 backdrop-blur rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+          <div class="flex items-start gap-4 mb-3">
+            <div class="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl">
+              🗂️
+            </div>
+            <div>
+              <h2 class="text-xl font-bold text-slate-900">
+                16タイプ一覧
+              </h2>
+              <p class="text-slate-600 mt-1">
+                全16タイプの特徴一覧です。
+              </p>
+            </div>
+          </div>
+
+          <a href="./types.html"
+             class="block text-center px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 text-lg font-semibold
+                    hover:bg-slate-50 active:bg-slate-100 transition">
+            16タイプ一覧を見る
+          </a>
+        </section>
+
+      </div>
     </div>
   </div>
 </body>
 </html>
-
-<a href="./types.html" class="inline-block mb-6 px-4 py-2 rounded-xl border bg-white shadow-sm">
-  16タイプ一覧を見る
-</a>
