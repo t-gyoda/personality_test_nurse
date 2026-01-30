@@ -219,7 +219,7 @@
 
       const r = out.report || {};
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
-      const typeCode = out.typeCode || '';
+      const typeCode = r.typeCode || out.typeCode || '';
       const typeID = r.typeID || '';
       const imgSrc = getTypeImageById(typeID);
 
