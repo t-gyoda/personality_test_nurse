@@ -242,7 +242,7 @@
       
           <!-- ★変更：画像背景を完全ニュートラルに（ピンク要素なし） -->
           <div class="mt-7 flex justify-center">
-            <div class="w-full max-w-xs aspect-square rounded-[26px] bg-white flex items-center justify-center">
+            <div class="w-full max-w-sm md:max-w-md aspect-square rounded-[32px] bg-white flex items-center justify-center">
               <img
                 src="${imgSrc}"
                 alt="${escapeHtml(typeName)} のイラスト"
@@ -257,7 +257,7 @@
             <div class="text-lg md:text-xl font-bold text-slate-800 text-left">
               ${cleanText(typename2)}
             </div>
-            <div class="text-sm md:text-base font-semibold text-slate-500 whitespace-nowrap">
+            <div class="text-xs md:text-sm font-medium text-slate-400 whitespace-nowrap">
               ${escapeHtml(typeCode)}
             </div>
           </div>
