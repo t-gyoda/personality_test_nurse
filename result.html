@@ -160,9 +160,30 @@
     }).join('');
   }
 
-  function getTypeImageById(typeID){
-    if(!typeID) return './illustrations/default.png';
-    return `./illustrations/${typeID}.png`;
+  function normalizeTypeImageId(...candidates){
+    for(const raw of candidates){
+      if(raw === undefined || raw === null) continue;
+      const text = String(raw).trim();
+      if(!text) continue;
+
+      const exact = Number(text);
+      if(Number.isInteger(exact) && exact >= 1 && exact <= 16){
+        return String(exact);
+      }
+
+      const m = text.match(/(\d{1,2})/);
+      if(!m) continue;
+      const n = Number(m[1]);
+      if(Number.isInteger(n) && n >= 1 && n <= 16){
+        return String(n);
+      }
+    }
+    return '1';
+  }
+
+  function getTypeImageById(...candidates){
+    const imageId = normalizeTypeImageId(...candidates);
+    return `./illustrations/${imageId}.png`;
   }
 
   // class の入れ替え補助
@@ -220,8 +241,15 @@
       const r = out.report || {};
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
       const typeCode = r.typeCode || out.typeCode || '';
-      const typeID = r.typeID || '';
-      const imgSrc = getTypeImageById(typeID);
+      const imgSrc = getTypeImageById(
+        r.typeID,
+        r.typeId,
+        out.typeID,
+        out.typeId,
+        r.typeNo,
+        out.typeNo,
+        typeCode
+      );
 
       const typename2 = r.typename2 || ''; // ★追加：typename2
       const feature  = r.feature || '';
@@ -247,7 +275,7 @@
                 src="${imgSrc}"
                 alt="${escapeHtml(typeName)} のイラスト"
                 class="w-full h-full object-contain"
-                onerror="this.src='./illustrations/default.png'"
+                onerror="this.src='./illustrations/1.png'"
               />
             </div>
           </div>
