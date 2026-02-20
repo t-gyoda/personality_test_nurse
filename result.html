@@ -160,66 +160,9 @@
     }).join('');
   }
 
-  function toHalfWidthDigits(text){
-    return String(text || '').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
-  }
-
-  function normalizeTypeImageId(...candidates){
-    for(const raw of candidates){
-      if(raw === undefined || raw === null) continue;
-      const text = toHalfWidthDigits(raw).trim();
-      if(!text) continue;
-
-      const exact = Number(text);
-      if(Number.isInteger(exact) && exact >= 1 && exact <= 16){
-        return String(exact);
-      }
-
-      const m = text.match(/(\d{1,2})/);
-      if(!m) continue;
-      const n = Number(m[1]);
-      if(Number.isInteger(n) && n >= 1 && n <= 16){
-        return String(n);
-      }
-    }
-    return '';
-  }
-
-  function normalizeTypeImagePath(...candidates){
-    for(const raw of candidates){
-      if(raw === undefined || raw === null) continue;
-      const text = String(raw).trim();
-      if(!text) continue;
-
-      if(/^\.\/?illustrations\/(?:[1-9]|1[0-6])\.png$/i.test(text) || /^illustrations\/(?:[1-9]|1[0-6])\.png$/i.test(text)){
-        return text;
-      }
-
-      if(/^https?:\/\//i.test(text) && /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(text)){
-        return text;
-      }
-    }
-    return '';
-  }
-
-  function normalizeTypeImagePath(...candidates){
-    for(const raw of candidates){
-      if(raw === undefined || raw === null) continue;
-      const text = String(raw).trim();
-      if(!text) continue;
-      if(/^https?:\/\//i.test(text) || /^\.\/?illustrations\//i.test(text) || /^illustrations\//i.test(text)){
-        return text;
-      }
-    }
-    return '';
-  }
-
-  function getTypeImageById(...candidates){
-    const directPath = normalizeTypeImagePath(...candidates);
-    if(directPath) return directPath;
-
-    const imageId = normalizeTypeImageId(...candidates);
-    return `./illustrations/${imageId}.png`;
+  function getTypeImageById(typeID){
+    if(!typeID) return './illustrations/default.png';
+    return `./illustrations/${typeID}.png`;
   }
 
   // class の入れ替え補助
@@ -277,27 +220,8 @@
       const r = out.report || {};
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
       const typeCode = r.typeCode || out.typeCode || '';
-      const imgSrc = getTypeImageById(
-        r.typeImage,
-        r.typeImageUrl,
-        r.type_image,
-        r.type_image_url,
-        out.typeImage,
-        out.typeImageUrl,
-        out.type_image,
-        out.type_image_url,
-        r.typeID,
-        r.typeId,
-        r.typeid,
-        out.typeID,
-        out.typeId,
-        out.typeid,
-        r.typeNo,
-        out.typeNo,
-        r.type_no,
-        out.type_no,
-        typeCode
-      );
+      const typeID = r.typeID || '';
+      const imgSrc = getTypeImageById(typeID);
 
       const typename2 = r.typename2 || ''; // ★追加：typename2
       const feature  = r.feature || '';
@@ -323,7 +247,7 @@
                 src="${imgSrc}"
                 alt="${escapeHtml(typeName)} のイラスト"
                 class="w-full h-full object-contain"
-                onerror="this.src='./illustrations/1.png'"
+                onerror="this.src='./illustrations/default.png'"
               />
             </div>
           </div>
