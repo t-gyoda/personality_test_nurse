@@ -182,7 +182,24 @@
         return String(n);
       }
     }
-    return '1';
+    return '';
+  }
+
+  function normalizeTypeImagePath(...candidates){
+    for(const raw of candidates){
+      if(raw === undefined || raw === null) continue;
+      const text = String(raw).trim();
+      if(!text) continue;
+
+      if(/^\.\/?illustrations\/(?:[1-9]|1[0-6])\.png$/i.test(text) || /^illustrations\/(?:[1-9]|1[0-6])\.png$/i.test(text)){
+        return text;
+      }
+
+      if(/^https?:\/\//i.test(text) && /\.(png|jpe?g|webp|gif|svg)(\?.*)?$/i.test(text)){
+        return text;
+      }
+    }
+    return '';
   }
 
   function normalizeTypeImagePath(...candidates){
