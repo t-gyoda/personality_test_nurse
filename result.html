@@ -202,14 +202,24 @@
     return '';
   }
 
-  function getTypeImageById(idCandidates, pathCandidates){
-    const imageId = normalizeTypeImageId(...idCandidates);
-    if(imageId) return `./illustrations/${imageId}.png`;
+  function normalizeTypeImagePath(...candidates){
+    for(const raw of candidates){
+      if(raw === undefined || raw === null) continue;
+      const text = String(raw).trim();
+      if(!text) continue;
+      if(/^https?:\/\//i.test(text) || /^\.\/?illustrations\//i.test(text) || /^illustrations\//i.test(text)){
+        return text;
+      }
+    }
+    return '';
+  }
 
-    const directPath = normalizeTypeImagePath(...pathCandidates);
+  function getTypeImageById(...candidates){
+    const directPath = normalizeTypeImagePath(...candidates);
     if(directPath) return directPath;
 
-    return './illustrations/1.png';
+    const imageId = normalizeTypeImageId(...candidates);
+    return `./illustrations/${imageId}.png`;
   }
 
   // class の入れ替え補助
@@ -268,29 +278,25 @@
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
       const typeCode = r.typeCode || out.typeCode || '';
       const imgSrc = getTypeImageById(
-        [
-          r.typeID,
-          r.typeId,
-          r.typeid,
-          out.typeID,
-          out.typeId,
-          out.typeid,
-          r.typeNo,
-          out.typeNo,
-          r.type_no,
-          out.type_no,
-          typeCode
-        ],
-        [
-          r.typeImage,
-          r.typeImageUrl,
-          r.type_image,
-          r.type_image_url,
-          out.typeImage,
-          out.typeImageUrl,
-          out.type_image,
-          out.type_image_url
-        ]
+        r.typeImage,
+        r.typeImageUrl,
+        r.type_image,
+        r.type_image_url,
+        out.typeImage,
+        out.typeImageUrl,
+        out.type_image,
+        out.type_image_url,
+        r.typeID,
+        r.typeId,
+        r.typeid,
+        out.typeID,
+        out.typeId,
+        out.typeid,
+        r.typeNo,
+        out.typeNo,
+        r.type_no,
+        out.type_no,
+        typeCode
       );
 
       const typename2 = r.typename2 || ''; // ★追加：typename2
