@@ -8,109 +8,99 @@
   <script src="./config.js"></script>
 </head>
 
-<body class="min-h-screen bg-[#fbfaf8] text-slate-800">
-  <!-- 背景：ほんのりピンク×グリーンの超うっすらグラデ＋うっすら粒 -->
-  <div class="fixed inset-0 -z-10">
-    <div class="absolute inset-0 bg-gradient-to-br from-rose-100/40 via-white to-emerald-100/35"></div>
-    <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-rose-50/20 to-transparent"></div>
-    <!-- うっすら粒（可愛さを足す） -->
-    <div class="absolute inset-0 opacity-[0.12]"
+<body class="min-h-screen bg-[#fffdf9] text-slate-700 selection:bg-rose-100">
+  <div class="fixed inset-0 -z-10 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#fffaf6] via-[#fffdfb] to-[#f7fbff]"></div>
+    <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-rose-200/35 blur-3xl"></div>
+    <div class="absolute top-24 -right-16 w-72 h-72 rounded-full bg-emerald-200/30 blur-3xl"></div>
+    <div class="absolute bottom-0 left-1/4 w-64 h-64 rounded-full bg-sky-200/30 blur-3xl"></div>
+    <div class="absolute inset-0 opacity-[0.10]"
       style="background-image:
-        radial-gradient(circle at 12% 18%, rgba(244,114,182,.35) 0 2px, transparent 3px),
-        radial-gradient(circle at 82% 22%, rgba(16,185,129,.35) 0 2px, transparent 3px),
-        radial-gradient(circle at 18% 78%, rgba(59,130,246,.25) 0 2px, transparent 3px),
-        radial-gradient(circle at 78% 76%, rgba(245,158,11,.25) 0 2px, transparent 3px),
-        radial-gradient(circle at 52% 40%, rgba(148,163,184,.25) 0 2px, transparent 3px);
-      background-size: 260px 260px;"></div>
+        radial-gradient(circle at 8% 16%, rgba(251,191,180,.55) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 88% 22%, rgba(167,243,208,.55) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 21% 74%, rgba(186,230,253,.50) 0 2px, transparent 2.5px),
+        radial-gradient(circle at 76% 80%, rgba(253,230,138,.45) 0 2px, transparent 2.5px);
+      background-size: 220px 220px;"></div>
   </div>
 
-  <div class="max-w-4xl mx-auto px-6 py-10">
-    <!-- ヘッダー -->
-    <header class="text-center mb-8">
-      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
+  <div class="max-w-5xl mx-auto px-6 py-10 sm:py-14">
+    <header class="text-center mb-9 sm:mb-12">
+      <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/70 border border-rose-100 text-rose-500 text-sm font-semibold shadow-sm">
+        <span>🫧</span>
+        やさしいタッチで自己理解
+      </span>
+      <h1 class="mt-5 text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-800 leading-tight">
         看護師向け 16パーソナリティ診断
       </h1>
-      <p class="text-slate-600 mt-3">
-        あなたの働き方スタイルを診断します。
+      <p class="text-slate-500 mt-4 text-base sm:text-lg">
+        ふんわりとした質問に答えながら、あなたらしい働き方スタイルを見つけましょう。
       </p>
-      <!-- うっすらアクセントライン -->
-      <div class="mt-5 flex justify-center">
-        <div class="h-1 w-20 rounded-full bg-gradient-to-r from-rose-300/70 to-rose-200/40"></div>
+      <div class="mt-6 flex justify-center">
+        <div class="h-2 w-28 rounded-full bg-gradient-to-r from-rose-200 via-amber-100 to-emerald-200"></div>
       </div>
     </header>
 
-    <!-- カード群 -->
     <div class="grid gap-6">
-
-      <!-- 診断A：横長カード（左にアイコン・右にボタン） -->
-      <section class="bg-white/80 backdrop-blur rounded-3xl border border-rose-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-          <!-- アイコン -->
+      <section class="relative overflow-hidden bg-white/80 backdrop-blur rounded-[2rem] border border-rose-100 shadow-[0_12px_30px_rgba(190,24,93,0.08)] p-6 sm:p-7">
+        <div class="absolute -top-10 -right-8 w-36 h-36 rounded-full bg-rose-100/70 blur-2xl"></div>
+        <div class="relative flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
           <div class="shrink-0 w-14 h-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-2xl">
             🩺
           </div>
 
-          <!-- テキスト -->
           <div class="min-w-0 flex-1">
-            <h2 class="text-xl font-bold text-slate-900 mb-2">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">
               看護師管理者向け 16タイプ診断
             </h2>
             <p class="text-slate-600 leading-relaxed">
-              看護現場でのあなたのマネジメントスタイルを、距離感・伝え方・進め方・判断の観点から、16タイプで分析します。
+              チームへの関わり方や意思決定スタイルを、やわらかな言葉で16タイプに整理します。
             </p>
           </div>
 
-          <!-- CTA -->
           <a href="./management.html"
              class="shrink-0 inline-flex justify-center items-center px-6 py-3 rounded-2xl text-white text-lg font-semibold
-                    bg-gradient-to-r from-rose-400 to-rose-500 shadow-[0_10px_20px_rgba(244,114,182,0.25)]
-                    hover:opacity-95 active:opacity-90 transition">
+                    bg-gradient-to-r from-rose-400 to-pink-400 shadow-[0_10px_20px_rgba(244,114,182,0.25)]
+                    hover:scale-[1.02] active:scale-[0.99] transition">
             管理者診断を始める
           </a>
         </div>
       </section>
 
-      <!-- 診断B：横長カード（左にアイコン・右にボタン） -->
-      <section class="bg-white/80 backdrop-blur rounded-3xl border border-emerald-100 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
-        <div class="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
-          <!-- アイコン -->
+      <section class="relative overflow-hidden bg-white/80 backdrop-blur rounded-[2rem] border border-emerald-100 shadow-[0_12px_30px_rgba(16,185,129,0.08)] p-6 sm:p-7">
+        <div class="absolute -bottom-10 -left-10 w-36 h-36 rounded-full bg-emerald-100/70 blur-2xl"></div>
+        <div class="relative flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-6">
           <div class="shrink-0 w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-2xl">
             🌱
           </div>
 
-          <!-- テキスト -->
           <div class="min-w-0 flex-1">
-            <div class="text-sm text-slate-500 mb-1">現場の働き方を16タイプで</div>
-            <h2 class="text-xl font-bold text-slate-900 mb-2">
+            <div class="text-sm text-emerald-600/80 font-semibold mb-1">現場の働き方を16タイプで</div>
+            <h2 class="text-xl font-bold text-slate-800 mb-2">
               看護師向け 16タイプ診断
             </h2>
             <p class="text-slate-600 leading-relaxed">
-              現場での動き方・コミュニケーションの傾向を16タイプで可視化します。
+              日々の動き方とコミュニケーションの傾向を、やさしいイラスト調トーンで可視化します。
             </p>
           </div>
 
-          <!-- CTA -->
           <a href="./nurse.html"
              class="shrink-0 inline-flex justify-center items-center px-6 py-3 rounded-2xl text-white text-lg font-semibold
-                    bg-emerald-600 shadow-[0_10px_20px_rgba(16,185,129,0.20)]
-                    hover:bg-emerald-700 active:bg-emerald-800 transition">
+                    bg-gradient-to-r from-emerald-400 to-teal-400 shadow-[0_10px_20px_rgba(16,185,129,0.22)]
+                    hover:scale-[1.02] active:scale-[0.99] transition">
             看護師診断を始める
           </a>
         </div>
       </section>
 
-      <!-- 下段：2カラム（相性診断 / 16タイプ一覧） -->
       <div class="grid sm:grid-cols-2 gap-6">
-
-        <!-- 相性診断 -->
-        <section class="bg-white/80 backdrop-blur rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+        <section class="bg-white/80 backdrop-blur rounded-[2rem] border border-sky-100 shadow-[0_10px_28px_rgba(56,189,248,0.08)] p-6 sm:p-7">
           <div class="flex items-start gap-4 mb-3">
-            <div class="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl">
+            <div class="shrink-0 w-12 h-12 rounded-2xl bg-sky-50 border border-sky-100 flex items-center justify-center text-2xl">
               🤝
             </div>
             <div>
-              <div class="text-sm text-slate-500 mb-1">関係性サポート</div>
-              <h2 class="text-xl font-bold text-slate-900">
+              <div class="text-sm text-sky-700/80 font-semibold mb-1">関係性サポート</div>
+              <h2 class="text-xl font-bold text-slate-800">
                 関係性サポート診断
               </h2>
             </div>
@@ -118,39 +108,37 @@
 
           <p class="text-slate-600 leading-relaxed mb-5">
             管理者×現場のタイプから、
-            よりよい関わり方のヒントを提供します。
+            すれ違いを減らすヒントをわかりやすく提案します。
           </p>
 
           <a href="./compat.html"
-             class="block text-center px-4 py-3 rounded-2xl bg-slate-800 text-white text-lg font-semibold
-                    hover:bg-slate-900 active:bg-black transition">
+             class="block text-center px-4 py-3 rounded-2xl bg-sky-500 text-white text-lg font-semibold
+                    hover:bg-sky-600 active:bg-sky-700 transition">
             相性診断を見る
           </a>
         </section>
 
-        <!-- 16タイプ一覧 -->
-        <section class="bg-white/80 backdrop-blur rounded-3xl border border-slate-200 shadow-[0_10px_30px_rgba(15,23,42,0.06)] p-6 sm:p-7">
+        <section class="bg-white/80 backdrop-blur rounded-[2rem] border border-amber-100 shadow-[0_10px_28px_rgba(251,191,36,0.10)] p-6 sm:p-7">
           <div class="flex items-start gap-4 mb-3">
-            <div class="shrink-0 w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-2xl">
+            <div class="shrink-0 w-12 h-12 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-center text-2xl">
               🗂️
             </div>
             <div>
-              <h2 class="text-xl font-bold text-slate-900">
+              <h2 class="text-xl font-bold text-slate-800">
                 16タイプ一覧
               </h2>
               <p class="text-slate-600 mt-1">
-                全16タイプの特徴一覧です。
+                全16タイプの特徴を、イラストとともにチェックできます。
               </p>
             </div>
           </div>
 
           <a href="./types.html"
-             class="block text-center px-4 py-3 rounded-2xl border border-slate-200 bg-white text-slate-800 text-lg font-semibold
-                    hover:bg-slate-50 active:bg-slate-100 transition">
+             class="block text-center px-4 py-3 rounded-2xl border border-amber-200 bg-amber-50/80 text-amber-900 text-lg font-semibold
+                    hover:bg-amber-100 active:bg-amber-200 transition">
             16タイプ一覧を見る
           </a>
         </section>
-
       </div>
     </div>
   </div>
