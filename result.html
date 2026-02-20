@@ -160,10 +160,14 @@
     }).join('');
   }
 
+  function toHalfWidthDigits(text){
+    return String(text || '').replace(/[０-９]/g, c => String.fromCharCode(c.charCodeAt(0) - 0xFEE0));
+  }
+
   function normalizeTypeImageId(...candidates){
     for(const raw of candidates){
       if(raw === undefined || raw === null) continue;
-      const text = String(raw).trim();
+      const text = toHalfWidthDigits(raw).trim();
       if(!text) continue;
 
       const exact = Number(text);
@@ -181,7 +185,22 @@
     return '1';
   }
 
+  function normalizeTypeImagePath(...candidates){
+    for(const raw of candidates){
+      if(raw === undefined || raw === null) continue;
+      const text = String(raw).trim();
+      if(!text) continue;
+      if(/^https?:\/\//i.test(text) || /^\.\/?illustrations\//i.test(text) || /^illustrations\//i.test(text)){
+        return text;
+      }
+    }
+    return '';
+  }
+
   function getTypeImageById(...candidates){
+    const directPath = normalizeTypeImagePath(...candidates);
+    if(directPath) return directPath;
+
     const imageId = normalizeTypeImageId(...candidates);
     return `./illustrations/${imageId}.png`;
   }
@@ -242,12 +261,24 @@
       const typeName = r.typeName || out.typeName || out.typeCode || '診断タイプ';
       const typeCode = r.typeCode || out.typeCode || '';
       const imgSrc = getTypeImageById(
+        r.typeImage,
+        r.typeImageUrl,
+        r.type_image,
+        r.type_image_url,
+        out.typeImage,
+        out.typeImageUrl,
+        out.type_image,
+        out.type_image_url,
         r.typeID,
         r.typeId,
+        r.typeid,
         out.typeID,
         out.typeId,
+        out.typeid,
         r.typeNo,
         out.typeNo,
+        r.type_no,
+        out.type_no,
         typeCode
       );
 
